@@ -1,5 +1,6 @@
 package shared;
 
-public enum PacketType {
-    Login
+public interface PacketType {
+    byte LOGIN = 0;
+    byte LOGIN_ACK = 1;
 }

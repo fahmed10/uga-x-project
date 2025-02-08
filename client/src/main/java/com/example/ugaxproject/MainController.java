@@ -1,7 +1,11 @@
 package com.example.ugaxproject;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import shared.LoginAckPacket;
+import shared.LoginPacket;
+
 import java.io.IOException;
 
 public class MainController {
@@ -13,10 +17,13 @@ public class MainController {
     public MainController() throws IOException {}
 
     @FXML
-    public void handleStartGame() throws IOException {
-        System.out.println("hello");
-        String response = client.send("Test Message");
-        System.out.println("Received: " + response);
-        GameApplication.switchToGameScreen();
+    public void handleStartGame() {
+        try {
+            LoginAckPacket response = (LoginAckPacket) client.send(new LoginPacket(usernameField.getText()));
+            GameApplication.showAlert("Info", "Assigned user ID " + response.userId + " by server", Alert.AlertType.INFORMATION);
+            GameApplication.switchToGameScreen(client);
+        } catch (IOException e) {
+            GameApplication.showAlert("Network Error", "Connection failed. Please try again.", Alert.AlertType.ERROR);
+        }
     }
 }

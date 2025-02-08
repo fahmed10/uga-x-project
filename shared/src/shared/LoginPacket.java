@@ -1,10 +1,10 @@
 package shared;
 
-public class LoginPacket {
-    private final String username;
+public class LoginPacket extends Packet {
+    public final String username;
 
     public LoginPacket(byte[] data) {
-        this.username = new String(data);
+        this.username = Utils.nulTerminateString(new String(data, 1, data.length - 1));
     }
 
     public LoginPacket(String username) {
@@ -12,6 +12,6 @@ public class LoginPacket {
     }
 
     public byte[] getData() {
-        return username.getBytes();
+        return Utils.combineArrays(Utils.asArray(PacketType.LOGIN), username.getBytes());
     }
 }
