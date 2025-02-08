@@ -1,0 +1,14 @@
+@font-face {
+    font-family: "customFont";
+    src: url("/font/Rebellion.ttf");
+}
+
+.text-field {
+    -fx-background-color: black;
+    -fx-text-fill: #fff600;
+    -fx-border-color: #fff600;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-font-size: 20px;
+
+}
