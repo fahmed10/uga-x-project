@@ -6,19 +6,31 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.*;
+import javafx.scene.image.*;
+import javafx.stage.Stage;
+
+import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
+
 import shared.Vector2;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class GameView {
     GameClient client;
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
+    Direction direction = Direction.LEFT;
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
     long lastTime = 0;
@@ -78,7 +90,12 @@ public class GameView {
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
 
         if (inputVector.x != 0 || inputVector.y != 0) {
-            Vector2 newPosition = player.move(inputVector);
+            boolean stillRolling = player.move(inputVector, inputs.contains(Input.ROLL), delta);
+            if (!stillRolling) {
+                inputs.remove(Input.ROLL);
+            }
+            player.move(inputVector, stillRolling, delta);
+            Vector2 newPosition = player.getPosition();
             try {
                 client.moveTo(newPosition);
             } catch (IOException e) {
@@ -92,6 +109,10 @@ public class GameView {
             }
         }
 
+        if (inputVector.x != 0) {
+            direction = inputVector.x < 0 ? Direction.LEFT : Direction.RIGHT;
+        }
+
         // draw/paint scene for current frame
         drawGame();
     }
@@ -102,6 +123,7 @@ public class GameView {
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
+        player.walkAnimation(direction, inputs);
         player.draw(gc);
     }
 
@@ -113,6 +135,7 @@ public class GameView {
             case S, DOWN -> Input.MOVE_DOWN;
             case A, LEFT -> Input.MOVE_LEFT;
             case D, RIGHT -> Input.MOVE_RIGHT;
+            case SPACE -> Input.ROLL;
             default -> null;
         });
     }
@@ -128,4 +151,13 @@ public class GameView {
                     default -> null;
                 });
     }
+
+    @FXML
+    void handleMousePress(MouseEvent event) {
+        if (event.getEventType().equals(MOUSE_PRESSED)) {
+            player.attack();
+        }
+    }
+
+
 }

@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.List;
 
 public class Server extends Thread {
     private final DatagramSocket socket;
@@ -22,6 +23,8 @@ public class Server extends Thread {
             DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length);
             gameWorld.removeLostPlayers();
 
+            List<Player> lostPlayers = gameWorld.removeLostPlayers();
+
             try {
                 socket.receive(dPacket);
             } catch (IOException e) {
@@ -37,6 +40,19 @@ public class Server extends Thread {
                 case PacketType.KEEP_ALIVE -> new KeepAlivePacket(dPacket.getData());
                 default -> throw new IllegalStateException("Unexpected packet type: " + dPacket.getData()[0]);
             };
+
+            for (Player lostPlayer : lostPlayers) {
+                for (Player player : gameWorld.getPlayers()) {
+                    dPacket.setAddress(player.address);
+                    dPacket.setPort(player.port);
+                    dPacket.setData(new PlayerLeavePacket(lostPlayer.userId).getData());
+                    try {
+                        socket.send(dPacket);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             try {
                 Packet response = handlePacket(received, dPacket);
@@ -88,6 +104,7 @@ public class Server extends Thread {
                     dPacket.setAddress(player.address);
                     dPacket.setPort(player.port);
                     socket.send(dPacket);
+                    System.out.println(player.address + " / " + player.port);
                 }
                 yield null;
             }

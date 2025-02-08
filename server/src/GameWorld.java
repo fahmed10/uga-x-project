@@ -35,8 +35,17 @@ public class GameWorld {
         return -1;
     }
 
-    public void removeLostPlayers() {
-        players.values().removeIf(Player::isLost);
+    public List<Player> removeLostPlayers() {
+        List<Player> lostPlayers = new ArrayList<>();
+        players.values().removeIf(p -> {
+            if (p.isLost()) {
+                lostPlayers.add(p);
+                return true;
+            }
+
+            return false;
+        });
+        return lostPlayers;
     }
 
     public Player getPlayer(byte userId) {
