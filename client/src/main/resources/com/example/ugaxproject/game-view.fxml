@@ -11,4 +11,6 @@
 
     <Canvas fx:id="gameCanvas" width="800" height="600" focusTraversable="true"/>
 
+    <Canvas fx:id="gameCanvas" width="800" height="600"/>
+
 </AnchorPane>
