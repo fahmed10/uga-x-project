@@ -5,8 +5,17 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.*;
+import javafx.scene.image.*;
+import javafx.stage.Stage;
+
+import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
 public class GameView {
 
@@ -76,4 +85,13 @@ public class GameView {
         }
         drawGame();
     }
+
+    @FXML
+    void handleMousePress(MouseEvent event) {
+        if (event.getEventType().equals(MOUSE_PRESSED)) {
+            player.attack();
+        }
+    }
+
+
 }
