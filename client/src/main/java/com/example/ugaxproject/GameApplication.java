@@ -26,12 +26,8 @@ public class GameApplication extends Application {
 
     public static void switchToGameScreen() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
-<<<<<<< HEAD
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root,800,600);
-=======
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
->>>>>>> 046230607ad908fef236e76e4d987bc0dce82e96
         GameView controller = fxmlLoader.getController();
 
         scene.setOnKeyPressed(controller::handleKeyPress);
