@@ -1,5 +1,6 @@
 package com.example.ugaxproject;
 
+import shared.Constants;
 import shared.LoginAckPacket;
 import shared.Packet;
 import shared.PacketType;
@@ -26,7 +27,11 @@ public class Client {
         DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length, address, port);
         socket.send(dPacket);
 
-        buffer = new byte[512];
+        if (!packet.expectsReply()) {
+            return null;
+        }
+
+        buffer = new byte[Constants.MAX_PACKET_LENGTH];
         dPacket = new DatagramPacket(buffer, buffer.length);
         socket.receive(dPacket);
 

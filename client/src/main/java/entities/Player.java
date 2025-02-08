@@ -9,7 +9,7 @@ public class Player extends Entity {
     private Image avatar;
     private Image legs;
 
-    public Player(double startX, double startY) {
+    public Player(float startX, float startY) {
         super(startX, startY);
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
         legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
@@ -18,11 +18,10 @@ public class Player extends Entity {
     @Override
     public void draw(GraphicsContext gc) {
         //gc.setFill(Color.BLUE);
-        //gc.fillOval(worldX, worldY, SIZE, SIZE);
+        //gc.fillOval(position.x, position.y, SIZE, SIZE);
         if (avatar != null) {
-            gc.drawImage(legs, worldX+1, worldY+36, SIZE, SIZE);
-            gc.drawImage(avatar, worldX, worldY, SIZE, SIZE);
+            gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
+            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
         }
-        
     }
 }
