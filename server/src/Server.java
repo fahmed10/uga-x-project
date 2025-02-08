@@ -42,6 +42,8 @@ public class Server extends Thread {
                     continue;
                 }
 
+                dPacket.setAddress(address);
+                dPacket.setPort(port);
                 dPacket.setData(response.getData());
                 socket.send(dPacket);
             } catch (IOException e) {
@@ -60,6 +62,17 @@ public class Server extends Thread {
                     yield null;
                 }
 
+                for (Player player : gameWorld.getPlayers()) {
+                    if (player.userId == userId) {
+                        continue;
+                    }
+
+                    dPacket.setAddress(player.address);
+                    dPacket.setPort(player.port);
+                    dPacket.setData(new PlayerJoinPacket(userId, new Vector2()).getData());
+                    socket.send(dPacket);
+                }
+
                 yield new LoginAckPacket(userId);
             }
             case PlayerMovePacket playerMovePacket -> {
@@ -76,10 +89,7 @@ public class Server extends Thread {
                 }
                 yield null;
             }
-            default -> {
-                System.out.println("Unhandled packet");
-                yield null;
-            }
+            default -> throw new IllegalStateException("Unhandled packet");
         };
     }
 }

@@ -27,6 +27,10 @@ public class Client {
         DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length, address, port);
         socket.send(dPacket);
 
+        if (!packet.expectsReply()) {
+            return null;
+        }
+
         buffer = new byte[Constants.MAX_PACKET_LENGTH];
         dPacket = new DatagramPacket(buffer, buffer.length);
         socket.receive(dPacket);

@@ -14,4 +14,9 @@ public class LoginPacket extends Packet {
     public byte[] getData() {
         return Utils.combineArrays(Utils.asArray(PacketType.LOGIN), username.getBytes());
     }
+
+    @Override
+    public boolean expectsReply() {
+        return true;
+    }
 }
