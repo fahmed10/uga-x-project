@@ -6,4 +6,5 @@ public interface PacketType {
     byte PLAYER_MOVE = 2;
     byte PLAYER_JOIN = 3;
     byte KEEP_ALIVE = 4;
+    byte PLAYER_LEAVE = 5;
 }
