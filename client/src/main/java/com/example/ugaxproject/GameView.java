@@ -6,19 +6,31 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.*;
+import javafx.scene.image.*;
+import javafx.stage.Stage;
+
+import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
+
 import shared.Vector2;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class GameView {
     GameClient client;
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
+    Direction direction = Direction.LEFT;
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
     long lastTime = 0;
@@ -92,6 +104,10 @@ public class GameView {
             }
         }
 
+        if (inputVector.x != 0) {
+            direction = inputVector.x < 0 ? Direction.LEFT : Direction.RIGHT;
+        }
+
         // draw/paint scene for current frame
         drawGame();
     }
@@ -102,6 +118,7 @@ public class GameView {
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
+        player.walkAnimation(direction, inputs);
         player.draw(gc);
     }
 
@@ -128,4 +145,13 @@ public class GameView {
                     default -> null;
                 });
     }
+
+    @FXML
+    void handleMousePress(MouseEvent event) {
+        if (event.getEventType().equals(MOUSE_PRESSED)) {
+            player.attack();
+        }
+    }
+
+
 }
