@@ -29,6 +29,7 @@ public class GameView {
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
+    Direction direction = Direction.LEFT;
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
 
@@ -84,6 +85,10 @@ public class GameView {
             player.move(inputVector);
         }
 
+        if (inputVector.x != 0) {
+            direction = inputVector.x < 0 ? Direction.LEFT : Direction.RIGHT;
+        }
+
         // draw/paint scene for current frame
         drawGame();
     }
@@ -94,6 +99,7 @@ public class GameView {
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
+        player.walkAnimation(direction, inputs);
         player.draw(gc);
     }
 

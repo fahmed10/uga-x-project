@@ -1,4 +1,5 @@
 package entities;
+import com.example.ugaxproject.Direction;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -7,6 +8,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import shared.Vector2;
+
+import java.awt.*;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
@@ -43,4 +46,8 @@ public abstract class Entity {
 
 
     public abstract void draw(GraphicsContext gc);
+
+    //public abstract void draw(GraphicsContext gc, Dimension direction);
+
+    //public abstract void draw(GraphicsContext gc, Direction direction);
 }

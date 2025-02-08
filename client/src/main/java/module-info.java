@@ -2,7 +2,7 @@ module com.example.ugaxproject {
     requires javafx.controls;
     requires javafx.fxml;
     requires shared;
-    requires java.xml;
+    requires java.desktop;
 
 
     opens com.example.ugaxproject to javafx.fxml;
