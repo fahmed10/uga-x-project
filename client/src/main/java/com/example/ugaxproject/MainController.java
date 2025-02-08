@@ -29,7 +29,7 @@ public class MainController {
     private Button startButton;
 
     public void initialize() {
-        Font customFont = Font.loadFont(getClass().getResourceAsStream("/font/Rebellion FREE.otf"), 30);
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/font/Rebellion.ttf"), 30);
         titleText.setFont(customFont);
         titleText2.setFont(customFont);
         usernameField.setFont(customFont);
