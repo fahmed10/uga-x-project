@@ -9,12 +9,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.scene.*;
-import javafx.scene.image.*;
-import javafx.stage.Stage;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
@@ -56,8 +50,8 @@ public class GameView {
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
 
-        gameCanvas.widthProperty().addListener(evt -> drawGame());
-        gameCanvas.heightProperty().addListener(evt -> drawGame());
+        gameCanvas.widthProperty().addListener(evt -> drawBackground());
+        gameCanvas.heightProperty().addListener(evt -> drawBackground());
 
         timer = new AnimationTimer() {
             @Override
@@ -94,7 +88,6 @@ public class GameView {
             if (!stillRolling) {
                 inputs.remove(Input.ROLL);
             }
-            player.move(inputVector, stillRolling, delta);
             Vector2 newPosition = player.getPosition();
             try {
                 client.moveTo(newPosition);
@@ -114,16 +107,20 @@ public class GameView {
         }
 
         // draw/paint scene for current frame
-        drawGame();
+        drawGame(delta);
     }
 
-    private void drawGame() {
+    private void drawBackground() {
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+    }
 
-        player.walkAnimation(direction, inputs);
+    private void drawGame(double delta) {
+        drawBackground();
+
+        player.walkAnimation(direction, inputs, delta);
         player.draw(gc);
     }
 
