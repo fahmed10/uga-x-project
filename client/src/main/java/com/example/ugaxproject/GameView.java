@@ -94,7 +94,8 @@ public class GameView {
             if (!stillRolling) {
                 inputs.remove(Input.ROLL);
             }
-            Vector2 newPosition = player.move(inputVector);
+            player.move(inputVector, stillRolling, delta);
+            Vector2 newPosition = player.getPosition();
             try {
                 client.moveTo(newPosition);
             } catch (IOException e) {
