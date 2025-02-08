@@ -1,12 +1,14 @@
 package com.example.ugaxproject;
 
 import entities.Player;
+import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import shared.Vector2;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +19,9 @@ public class GameView {
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
+    Vector2 inputVector = new Vector2();
+
+    AnimationTimer timer;
 
     @FXML
     private Canvas gameCanvas;
@@ -46,8 +51,14 @@ public class GameView {
         gameCanvas.widthProperty().addListener(evt -> drawGame());
         gameCanvas.heightProperty().addListener(evt -> drawGame());
 
-        gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(100, 100);
+        timer = new AnimationTimer() {
+
+            @Override
+            public void handle(long l) {
+                run();
+            }
+        };
+        timer.start();
     }
 
     public void setupGame() {
@@ -58,6 +69,12 @@ public class GameView {
 
     void run() {
         // Update player movement based on movement booleans
+        inputVector.set(0, 0);
+        if (inputs.contains(Input.MOVE_UP)) {inputVector.add(0, -1);}
+        if (inputs.contains(Input.MOVE_DOWN)) {inputVector.add(0, 1);}
+        if (inputs.contains(Input.MOVE_LEFT)) {inputVector.add(-1, 0);}
+        if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
+        player.move(inputVector);
 
         // draw/paint scene for current frame
         drawGame();
@@ -87,7 +104,7 @@ public class GameView {
     }
 
     @FXML
-    void handleKeyReleased(KeyEvent event) {
+    void handleKeyRelease(KeyEvent event) {
         inputs.remove(
                 switch (event.getCode()) {
                     case W, UP -> Input.MOVE_UP;

@@ -8,7 +8,7 @@ public class Player extends Entity {
     private static final int SIZE = 20;
     private Image avatar;
 
-    public Player(double startX, double startY) {
+    public Player(float startX, float startY) {
         super(startX, startY);
         avatar = new Image(getClass().getResourceAsStream("/sprites/wimyits.jpg"));
     }
@@ -16,9 +16,9 @@ public class Player extends Entity {
     @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.BLUE);
-        gc.fillOval(worldX, worldY, SIZE, SIZE);
+        gc.fillOval(position.x, position.y, SIZE, SIZE);
         if (avatar != null) {
-            gc.drawImage(avatar, worldX, worldY, SIZE, SIZE);
+            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
         }
         
     }
