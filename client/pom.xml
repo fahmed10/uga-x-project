@@ -38,6 +38,18 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>Unknown</groupId>
+            <artifactId>Unknown</artifactId>
+            <version>Unknown</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>uga-x-project-shared</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
