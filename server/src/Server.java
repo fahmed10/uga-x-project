@@ -21,6 +21,7 @@ public class Server extends Thread {
         while (true) {
             Arrays.fill(buffer, (byte) 0);
             DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length);
+            gameWorld.removeLostPlayers();
 
             List<Player> lostPlayers = gameWorld.removeLostPlayers();
 
@@ -36,6 +37,7 @@ public class Server extends Thread {
             Packet received = switch (dPacket.getData()[0]) {
                 case PacketType.LOGIN -> new LoginPacket(dPacket.getData());
                 case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
+                case PacketType.KEEP_ALIVE -> new KeepAlivePacket(dPacket.getData());
                 default -> throw new IllegalStateException("Unexpected packet type: " + dPacket.getData()[0]);
             };
 
@@ -104,6 +106,11 @@ public class Server extends Thread {
                     socket.send(dPacket);
                     System.out.println(player.address + " / " + player.port);
                 }
+                yield null;
+            }
+            case KeepAlivePacket keepAlivePacket -> {
+                System.out.println("[" + keepAlivePacket.userId + "] Keep alive");
+                gameWorld.getPlayer(keepAlivePacket.userId).keepAlive();
                 yield null;
             }
             default -> throw new IllegalStateException("Unhandled packet");

@@ -25,13 +25,18 @@ public class GameApplication extends Application {
         primaryStage.setScene(scene);
     }
 
-    public static void switchToGameScreen(Client client) throws IOException {
+    public static void switchToGameScreen(GameClient client) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root,800,600);
         GameView controller = fxmlLoader.getController();
+        controller.init(client);
 
         scene.setOnKeyPressed(controller::handleKeyPress);
+
+        scene.setOnMousePressed(controller::handleMousePress);
+
+        scene.setOnKeyReleased(controller::handleKeyRelease);
 
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);

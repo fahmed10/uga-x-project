@@ -18,7 +18,9 @@ public class GameWorld {
     }
 
     public void movePlayerTo(byte userId, Vector2 position) {
-        players.get(userId).position = position;
+        Player player = players.get(userId);
+        player.position = position;
+        player.keepAlive();
     }
 
     private byte getUnusedPlayerId() {

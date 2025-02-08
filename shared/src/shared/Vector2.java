@@ -1,6 +1,7 @@
 package shared;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class Vector2 {
     public float x, y;
@@ -30,6 +31,20 @@ public class Vector2 {
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Vector2 vector) {
+            return x == vector.x && y == vector.y;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 
     public void set(float x, float y) {
