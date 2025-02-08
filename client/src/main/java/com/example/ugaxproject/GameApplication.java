@@ -2,6 +2,7 @@ package com.example.ugaxproject;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
@@ -26,10 +27,11 @@ public class GameApplication extends Application {
 
     public static void switchToGameScreen(Client client) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root,800,600);
+        GameView controller = fxmlLoader.getController();
 
-        GameView gameView = fxmlLoader.getController();
-        gameView.initialize(client);
+        scene.setOnKeyPressed(controller::handleKeyPress);
 
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
