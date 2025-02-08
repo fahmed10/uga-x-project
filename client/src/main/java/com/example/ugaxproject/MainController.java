@@ -3,8 +3,6 @@ package com.example.ugaxproject;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-import shared.LoginAckPacket;
-import shared.LoginPacket;
 
 import java.io.IOException;
 
