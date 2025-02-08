@@ -77,7 +77,10 @@ public class GameView {
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
 
         if (inputVector.x != 0 || inputVector.y != 0) {
-            player.move(inputVector);
+            boolean stillRolling = player.move(inputVector, inputs.contains(Input.ROLL), delta);
+            if (!stillRolling) {
+                inputs.remove(Input.ROLL);
+            }
         }
 
         // draw/paint scene for current frame
@@ -101,6 +104,7 @@ public class GameView {
             case S, DOWN -> Input.MOVE_DOWN;
             case A, LEFT -> Input.MOVE_LEFT;
             case D, RIGHT -> Input.MOVE_RIGHT;
+            case SPACE -> Input.ROLL;
             default -> null;
         });
     }
