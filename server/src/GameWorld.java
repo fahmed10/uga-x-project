@@ -18,7 +18,9 @@ public class GameWorld {
     }
 
     public void movePlayerTo(byte userId, Vector2 position) {
-        players.get(userId).position = position;
+        Player player = players.get(userId);
+        player.position = position;
+        player.keepAlive();
     }
 
     private byte getUnusedPlayerId() {
@@ -31,6 +33,14 @@ public class GameWorld {
         }
 
         return -1;
+    }
+
+    public void removeLostPlayers() {
+        players.values().removeIf(Player::isLost);
+    }
+
+    public Player getPlayer(byte userId) {
+        return players.get(userId);
     }
 
     public Collection<Player> getPlayers() {

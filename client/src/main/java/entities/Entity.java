@@ -24,10 +24,15 @@ public abstract class Entity {
         this.position = new Vector2(startX, startY);
     }
 
-    public void move(Vector2 inputVector) {
+    public Vector2 move(Vector2 inputVector) {
         inputVector.normalize();
         inputVector.scale(speed);
         position.add(inputVector.x, inputVector.y);
+        return position;
+    }
+
+    public void moveTo(Vector2 position) {
+        this.position = position;
     }
 
 //    public void attack(MouseEvent event) {

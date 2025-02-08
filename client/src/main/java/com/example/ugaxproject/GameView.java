@@ -20,6 +20,7 @@ import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
 import shared.Vector2;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ public class GameView {
     Direction direction = Direction.LEFT;
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
+    long lastTime = 0;
 
     @FXML
     private Canvas gameCanvas;
@@ -59,8 +61,8 @@ public class GameView {
 
         timer = new AnimationTimer() {
             @Override
-            public void handle(long l) {
-                run();
+            public void handle(long currentTime) {
+                run(currentTime);
             }
         };
 
@@ -73,7 +75,13 @@ public class GameView {
         // server should be authoritatively informing the client of when the game is set up.
     }
 
-    void run() {
+    void run(long currentTime) {
+        // Establish delta time to normalize framerates
+        double delta = (currentTime - lastTime) / 1E9;
+        lastTime = System.nanoTime();
+        System.out.println(delta);
+        System.out.println(1/delta);
+
         // Update player movement based on movement booleans
         inputVector.set(0, 0);
         if (inputs.contains(Input.MOVE_UP)) {inputVector.add(0, -1);}
@@ -82,7 +90,18 @@ public class GameView {
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
 
         if (inputVector.x != 0 || inputVector.y != 0) {
-            player.move(inputVector);
+            Vector2 newPosition = player.move(inputVector);
+            try {
+                client.moveTo(newPosition);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                client.keepAlive();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (inputVector.x != 0) {
