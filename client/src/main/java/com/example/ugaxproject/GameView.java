@@ -10,6 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import shared.Vector2;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,7 +71,18 @@ public class GameView {
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
 
         if (inputVector.x != 0 || inputVector.y != 0) {
-            player.move(inputVector);
+            Vector2 newPosition = player.move(inputVector);
+            try {
+                client.moveTo(newPosition);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                client.keepAlive();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // draw/paint scene for current frame
