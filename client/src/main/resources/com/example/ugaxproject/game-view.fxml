@@ -3,14 +3,8 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.ugaxproject.GameView"
-            fx:id="rootPane"
-          >
+<AnchorPane fx:id="rootPane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ugaxproject.GameView">
 
-    <Canvas fx:id="gameCanvas" width="800" height="600" focusTraversable="true"/>
-
-    <Canvas fx:id="gameCanvas" width="800" height="600"/>
+    <Canvas fx:id="gameCanvas" focusTraversable="true" height="600" width="800" />
 
 </AnchorPane>
