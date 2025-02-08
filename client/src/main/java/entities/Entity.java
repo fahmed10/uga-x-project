@@ -2,29 +2,23 @@ package entities;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import shared.Vector2;
 
 public abstract class Entity {
-    protected double worldX, worldY;
-    protected double speed = 4;
+    protected Vector2 position;
+    protected float speed = 4;
     protected int maxHealth = 100;
     protected int health = maxHealth;
 
-    public Entity(double startX, double startY) {
-        this.worldX = startX;
-        this.worldY = startY;
+    public Entity(float startX, float startY) {
+        this.position = new Vector2(startX, startY);
     }
 
-    public void move(String direction) {
-        switch (direction) {
-            case "up": worldY -= speed; break;
-            case "down": worldY += speed; break;
-            case "left": worldX -= speed; break;
-            case "right": worldX += speed; break;
-        }
+    public void move(Vector2 inputVector) {
+        inputVector.normalize();
+        inputVector.scale(speed);
+        position.add(inputVector.x, inputVector.y);
     }
 
     public abstract void draw(GraphicsContext gc);
-
-    public double getX() { return worldX; }
-    public double getY() { return worldY; }
 }
