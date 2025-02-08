@@ -21,10 +21,8 @@ public class Server extends Thread {
         while (true) {
             Arrays.fill(buffer, (byte) 0);
             DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length);
-<<<<<<< Updated upstream
-=======
+
             List<Player> lostPlayers = gameWorld.removeLostPlayers();
->>>>>>> Stashed changes
 
             try {
                 socket.receive(dPacket);
