@@ -6,4 +6,5 @@ module com.example.ugaxproject {
 
     opens com.example.ugaxproject to javafx.fxml;
     exports com.example.ugaxproject;
+    exports entities;
 }
