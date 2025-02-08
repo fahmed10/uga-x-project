@@ -6,8 +6,8 @@ import com.example.ugaxproject.State;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import shared.Vector2;
 
-import java.awt.*;
 import java.util.Set;
 
 public class Player extends Entity {
@@ -17,6 +17,7 @@ public class Player extends Entity {
     private Image guitar;
     private Direction direction = Direction.LEFT;
     private State state = State.NOT_ATTACKING;
+    protected float walkCounter = 0.0f;
     //public boolean runningLeft = true;
 
     public Player(float startX, float startY) {
@@ -24,6 +25,10 @@ public class Player extends Entity {
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
         legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
         guitar = new Image(getClass().getResourceAsStream("/sprites/guitar_diagonal_swing_left.png"));
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 
     @Override
@@ -65,8 +70,7 @@ public class Player extends Entity {
     }
 
 
-
-    public void walkAnimation(Direction direction, Set<Input> inputs, AnimationTimer timer) {
+    public void walkAnimation(Direction direction, Set<Input> inputs, double deltaTime) {
         this.direction = direction;
 
         if(state == State.NOT_ATTACKING) {
@@ -106,9 +110,35 @@ public class Player extends Entity {
             }
         }
 
-        if(direction == Direction.LEFT && !inputs.isEmpty()){
-            legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_1.png"));
-            legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_2.png"));
+
+        if(direction == Direction.LEFT && inputs.contains(Input.MOVE_LEFT)) {
+            walkCounter += (float) deltaTime;
+            if (walkCounter < 0.25) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_1.png"));
+            } else if (walkCounter < 0.50) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_2.png"));
+            } else if (walkCounter < 0.75) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_1.png"));
+            } else if (walkCounter < 1.00) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_2.png"));
+            } else {
+                walkCounter = 0;
+            }
+        }
+
+        if(direction == Direction.RIGHT && inputs.contains(Input.MOVE_RIGHT)) {
+            walkCounter += (float) deltaTime;
+            if (walkCounter < 0.25) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_right_1.png"));
+            } else if (walkCounter < 0.50) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_right_2.png"));
+            } else if (walkCounter < 0.75) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_right_1.png"));
+            } else if (walkCounter < 1.00) {
+                legs = new Image(getClass().getResourceAsStream("/sprites/legs_right_2.png"));
+            } else {
+                walkCounter = 0;
+            }
         }
     }
 

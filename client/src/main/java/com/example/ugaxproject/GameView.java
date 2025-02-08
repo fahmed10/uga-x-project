@@ -9,12 +9,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.scene.*;
-import javafx.scene.image.*;
-import javafx.stage.Stage;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
@@ -56,8 +50,8 @@ public class GameView {
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
 
-        gameCanvas.widthProperty().addListener(evt -> drawGame());
-        gameCanvas.heightProperty().addListener(evt -> drawGame());
+        gameCanvas.widthProperty().addListener(evt -> drawBackground());
+        gameCanvas.heightProperty().addListener(evt -> drawBackground());
 
         timer = new AnimationTimer() {
             @Override
@@ -90,7 +84,11 @@ public class GameView {
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
 
         if (inputVector.x != 0 || inputVector.y != 0) {
-            Vector2 newPosition = player.move(inputVector);
+            boolean stillRolling = player.move(inputVector, inputs.contains(Input.ROLL), delta);
+            if (!stillRolling) {
+                inputs.remove(Input.ROLL);
+            }
+            Vector2 newPosition = player.getPosition();
             try {
                 client.moveTo(newPosition);
             } catch (IOException e) {
@@ -109,16 +107,21 @@ public class GameView {
         }
 
         // draw/paint scene for current frame
-        drawGame();
+        drawGame(delta);
     }
 
-    private void drawGame() {
+    private void drawBackground() {
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+    }
 
-        player.walkAnimation(direction, inputs, timer);
+
+    private void drawGame(double delta) {
+        drawBackground();
+
+        player.walkAnimation(direction, inputs, delta);
         player.draw(gc);
     }
 
@@ -130,6 +133,7 @@ public class GameView {
             case S, DOWN -> Input.MOVE_DOWN;
             case A, LEFT -> Input.MOVE_LEFT;
             case D, RIGHT -> Input.MOVE_RIGHT;
+            case SPACE -> Input.ROLL;
             default -> null;
         });
     }
