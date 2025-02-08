@@ -118,7 +118,7 @@ public class GameView {
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
-        player.walkAnimation(direction, inputs);
+        player.walkAnimation(direction, inputs, timer);
         player.draw(gc);
     }
 
