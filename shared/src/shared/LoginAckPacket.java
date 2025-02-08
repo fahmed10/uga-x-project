@@ -15,4 +15,9 @@ public class LoginAckPacket extends Packet {
     public byte[] getData() {
         return Utils.asArray(PacketType.LOGIN_ACK, userId);
     }
+
+    @Override
+    public boolean expectsReply() {
+        return false;
+    }
 }
