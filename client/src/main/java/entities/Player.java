@@ -4,8 +4,8 @@ import com.example.ugaxproject.Direction;
 import com.example.ugaxproject.Input;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import shared.Vector2;
 
-import java.awt.*;
 import java.util.Set;
 
 public class Player extends Entity {
@@ -21,6 +21,10 @@ public class Player extends Entity {
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
         legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
         guitar = new Image(getClass().getResourceAsStream("/sprites/guitar_diagonal_swing_left.png"));
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 
     @Override

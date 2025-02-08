@@ -74,7 +74,7 @@ public class Server extends Thread {
         return switch (packet) {
             case LoginPacket loginPacket -> {
                 System.out.println("Player " + loginPacket.username + " logged in");
-                byte userId = gameWorld.addPlayer(loginPacket.username, dPacket.getAddress(), Constants.SERVER_PORT + loginPacket.listenPort);
+                byte userId = gameWorld.addPlayer(loginPacket.username, dPacket.getAddress(), dPacket.getPort());
 
                 if (userId == -1) {
                     yield null;
