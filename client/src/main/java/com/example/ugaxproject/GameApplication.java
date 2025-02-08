@@ -33,6 +33,9 @@ public class GameApplication extends Application {
         controller.init(client);
 
         scene.setOnKeyPressed(controller::handleKeyPress);
+
+        scene.setOnMousePressed(controller::handleMousePress);
+
         scene.setOnKeyReleased(controller::handleKeyRelease);
 
         primaryStage.setScene(scene);
