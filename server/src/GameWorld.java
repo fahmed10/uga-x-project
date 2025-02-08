@@ -33,6 +33,26 @@ public class GameWorld {
         return -1;
     }
 
+<<<<<<< Updated upstream
+=======
+    public List<Player> removeLostPlayers() {
+        List<Player> lostPlayers = new ArrayList<>();
+        players.values().removeIf(p -> {
+            if (p.isLost()) {
+                lostPlayers.add(p);
+                return true;
+            }
+
+            return false;
+        });
+        return lostPlayers;
+    }
+
+    public Player getPlayer(byte userId) {
+        return players.get(userId);
+    }
+
+>>>>>>> Stashed changes
     public Collection<Player> getPlayers() {
         return Collections.unmodifiableCollection(players.values());
     }

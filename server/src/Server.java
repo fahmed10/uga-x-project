@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.List;
 
 public class Server extends Thread {
     private final DatagramSocket socket;
@@ -20,6 +21,10 @@ public class Server extends Thread {
         while (true) {
             Arrays.fill(buffer, (byte) 0);
             DatagramPacket dPacket = new DatagramPacket(buffer, buffer.length);
+<<<<<<< Updated upstream
+=======
+            List<Player> lostPlayers = gameWorld.removeLostPlayers();
+>>>>>>> Stashed changes
 
             try {
                 socket.receive(dPacket);
@@ -35,6 +40,19 @@ public class Server extends Thread {
                 case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
                 default -> throw new IllegalStateException("Unexpected packet type: " + dPacket.getData()[0]);
             };
+
+            for (Player lostPlayer : lostPlayers) {
+                for (Player player : gameWorld.getPlayers()) {
+                    dPacket.setAddress(player.address);
+                    dPacket.setPort(player.port);
+                    dPacket.setData(new PlayerLeavePacket(lostPlayer.userId).getData());
+                    try {
+                        socket.send(dPacket);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             try {
                 Packet response = handlePacket(received, dPacket);
@@ -56,7 +74,7 @@ public class Server extends Thread {
         return switch (packet) {
             case LoginPacket loginPacket -> {
                 System.out.println("Player " + loginPacket.username + " logged in");
-                byte userId = gameWorld.addPlayer(loginPacket.username, dPacket.getAddress(), dPacket.getPort());
+                byte userId = gameWorld.addPlayer(loginPacket.username, dPacket.getAddress(), Constants.SERVER_PORT + loginPacket.listenPort);
 
                 if (userId == -1) {
                     yield null;
@@ -86,6 +104,7 @@ public class Server extends Thread {
                     dPacket.setAddress(player.address);
                     dPacket.setPort(player.port);
                     socket.send(dPacket);
+                    System.out.println(player.address + " / " + player.port);
                 }
                 yield null;
             }
