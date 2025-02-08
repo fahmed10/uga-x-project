@@ -30,6 +30,7 @@ public class GameApplication extends Application {
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root,800,600);
         GameView controller = fxmlLoader.getController();
+        controller.init(client);
 
         scene.setOnKeyPressed(controller::handleKeyPress);
         scene.setOnKeyReleased(controller::handleKeyRelease);

@@ -14,13 +14,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GameView {
-
     Client client;
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
     Vector2 inputVector = new Vector2();
-
     AnimationTimer timer;
 
     @FXML
@@ -29,7 +27,7 @@ public class GameView {
     @FXML
     private AnchorPane rootPane;
 
-    public void initialize(Client client) {
+    public void init(Client client) {
         this.client = client;
         setupGame();
 
@@ -38,26 +36,22 @@ public class GameView {
             return;
         }
 
-
-
         gc = gameCanvas.getGraphicsContext2D();
         player = new Player(100,100);
 
-
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
-
 
         gameCanvas.widthProperty().addListener(evt -> drawGame());
         gameCanvas.heightProperty().addListener(evt -> drawGame());
 
         timer = new AnimationTimer() {
-
             @Override
             public void handle(long l) {
                 run();
             }
         };
+
         timer.start();
     }
 
@@ -74,7 +68,10 @@ public class GameView {
         if (inputs.contains(Input.MOVE_DOWN)) {inputVector.add(0, 1);}
         if (inputs.contains(Input.MOVE_LEFT)) {inputVector.add(-1, 0);}
         if (inputs.contains(Input.MOVE_RIGHT)) {inputVector.add(1, 0);}
-        player.move(inputVector);
+
+        if (inputVector.x != 0 || inputVector.y != 0) {
+            player.move(inputVector);
+        }
 
         // draw/paint scene for current frame
         drawGame();
@@ -83,10 +80,8 @@ public class GameView {
     private void drawGame() {
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
-
-        gc.setFill(Color.LIGHTGRAY);
+        gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
-
 
         player.draw(gc);
     }

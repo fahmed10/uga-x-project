@@ -20,6 +20,5 @@ public class Player extends Entity {
         if (avatar != null) {
             gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
         }
-        
     }
 }
