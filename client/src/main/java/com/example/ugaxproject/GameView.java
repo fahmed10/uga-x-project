@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GameView {
-    Client client;
+    GameClient client;
     private GraphicsContext gc;
     private Player player;
     Set<Input> inputs = new HashSet<>();
@@ -27,7 +27,7 @@ public class GameView {
     @FXML
     private AnchorPane rootPane;
 
-    public void init(Client client) {
+    public void init(GameClient client) {
         this.client = client;
         setupGame();
 
