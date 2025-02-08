@@ -21,6 +21,7 @@ public class GameView {
     Set<Input> inputs = new HashSet<>();
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
+    long lastTime = 0;
 
     @FXML
     private Canvas gameCanvas;
@@ -48,8 +49,8 @@ public class GameView {
 
         timer = new AnimationTimer() {
             @Override
-            public void handle(long l) {
-                run();
+            public void handle(long currentTime) {
+                run(currentTime);
             }
         };
 
@@ -62,7 +63,13 @@ public class GameView {
         // server should be authoritatively informing the client of when the game is set up.
     }
 
-    void run() {
+    void run(long currentTime) {
+        // Establish delta time to normalize framerates
+        double delta = (currentTime - lastTime) / 1E9;
+        lastTime = System.nanoTime();
+        System.out.println(delta);
+        System.out.println(1/delta);
+
         // Update player movement based on movement booleans
         inputVector.set(0, 0);
         if (inputs.contains(Input.MOVE_UP)) {inputVector.add(0, -1);}
