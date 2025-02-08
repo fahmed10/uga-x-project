@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 public class GameView {
     @FXML
     private Canvas gameCanvas;
+    @FXML
     private AnchorPane rootPane;
 
     private GraphicsContext gc;
@@ -18,8 +19,21 @@ public class GameView {
 
     @FXML
     public void initialize() {
+        if (gameCanvas == null) {
+            System.out.println("Error: gameCanvas is null! Check your FXML.");
+            return;
+        }
+
         gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(100, 100);
+        player = new Player(100,100);
+
+
+        gameCanvas.widthProperty().bind(rootPane.widthProperty());
+        gameCanvas.heightProperty().bind(rootPane.heightProperty());
+
+
+        gameCanvas.widthProperty().addListener(evt -> drawGame());
+        gameCanvas.heightProperty().addListener(evt -> drawGame());
         drawGame();
     }
 
