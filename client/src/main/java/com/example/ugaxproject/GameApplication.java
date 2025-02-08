@@ -27,6 +27,7 @@ public class GameApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
     }
 
     public static void main(String[] args) {
