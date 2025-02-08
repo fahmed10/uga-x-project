@@ -17,6 +17,6 @@ public class MainController {
         System.out.println("hello");
         String response = client.send("Test Message");
         System.out.println("Received: " + response);
-        GameApplication.switchToGameScreen();
+        GameApplication.switchToGameScreen(client);
     }
 }
