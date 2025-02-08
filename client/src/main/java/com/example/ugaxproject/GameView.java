@@ -8,36 +8,32 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class GameView {
 
     Client client;
+    private GraphicsContext gc;
+    private Player player;
+    Set<Input> inputs = new HashSet<>();
 
-    public void initialize(Client client) {
-        this.client = client;
-        setupGame();
-    }
-
-    public void setupGame() {
-        // Queries server for data to setup the game session. Server should return back any data needed for that:
-        // Could be locations of objects that spawn on the map at the start of a game session, or anything else the
-        // server should be authoritatively informing the client of when the game is set up.
-    }
-    
     @FXML
     private Canvas gameCanvas;
 
     @FXML
     private AnchorPane rootPane;
 
-    private GraphicsContext gc;
-    private Player player;
+    public void initialize(Client client) {
+        this.client = client;
+        setupGame();
 
-    @FXML
-    public void initialize() {
         if (gameCanvas == null) {
             System.out.println("Error: gameCanvas is null! Check your FXML.");
             return;
         }
+
+
 
         gc = gameCanvas.getGraphicsContext2D();
         player = new Player(100,100);
@@ -52,6 +48,18 @@ public class GameView {
 
         gc = gameCanvas.getGraphicsContext2D();
         player = new Player(100, 100);
+    }
+
+    public void setupGame() {
+        // Queries server for data to setup the game session. Server should return back any data needed for that:
+        // Could be locations of objects that spawn on the map at the start of a game session, or anything else the
+        // server should be authoritatively informing the client of when the game is set up.
+    }
+
+    void run() {
+        // Update player movement based on movement booleans
+
+        // draw/paint scene for current frame
         drawGame();
     }
 
@@ -68,12 +76,25 @@ public class GameView {
 
     @FXML
     void handleKeyPress(KeyEvent event) {
+        inputs.add(
         switch (event.getCode()) {
-            case W: player.move("up"); break;
-            case S: player.move("down"); break;
-            case A: player.move("left"); break;
-            case D: player.move("right"); break;
-        }
-        drawGame();
+            case W, UP -> Input.MOVE_UP;
+            case S, DOWN -> Input.MOVE_DOWN;
+            case A, LEFT -> Input.MOVE_LEFT;
+            case D, RIGHT -> Input.MOVE_RIGHT;
+            default -> null;
+        });
+    }
+
+    @FXML
+    void handleKeyReleased(KeyEvent event) {
+        inputs.remove(
+                switch (event.getCode()) {
+                    case W, UP -> Input.MOVE_UP;
+                    case S, DOWN -> Input.MOVE_DOWN;
+                    case A, LEFT -> Input.MOVE_LEFT;
+                    case D, RIGHT -> Input.MOVE_RIGHT;
+                    default -> null;
+                });
     }
 }

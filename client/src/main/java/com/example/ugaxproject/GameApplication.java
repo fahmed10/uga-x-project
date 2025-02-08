@@ -32,6 +32,7 @@ public class GameApplication extends Application {
         GameView controller = fxmlLoader.getController();
 
         scene.setOnKeyPressed(controller::handleKeyPress);
+        scene.setOnKeyReleased(controller::handleKeyRelease);
 
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
