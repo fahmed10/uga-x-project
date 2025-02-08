@@ -17,7 +17,7 @@ public class MainController {
     public MainController() throws IOException {}
 
     @FXML
-    public void handleStartGame() {
+    public void handleStartGame() throws IOException {
         try {
             LoginAckPacket response = (LoginAckPacket) client.send(new LoginPacket(usernameField.getText()));
             GameApplication.showAlert("Info", "Assigned user ID " + response.userId + " by server", Alert.AlertType.INFORMATION);
