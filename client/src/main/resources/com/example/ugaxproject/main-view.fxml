@@ -14,7 +14,7 @@
     </padding>
 
     <children>
-        <Text fx:id="titleText" fill="#fff600" strokeType="OUTSIDE" strokeWidth="0.0" text="The Game">
+        <Text fx:id="titleText" fill="#fff600" strokeType="OUTSIDE" strokeWidth="0.0" text="Miller Mayhem">
          <font>
             <Font size="30.0" />
          </font></Text>
