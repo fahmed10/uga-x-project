@@ -18,6 +18,9 @@ import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 import shared.*;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.*;
 import java.util.*;
 
@@ -34,10 +37,17 @@ public class GameView {
     Map<Byte, Player> others = new HashMap<>();
     final Queue<Packet> packetQueue = new LinkedList<>();
     private static Direction[] directions = Direction.values();
-    float startX = 100.0f;
-    float startY = 100.0f;
-    public static float worldX = 0.0f;    // x-coords the player has moved this session
-    public static float worldY = 0.0f;    // y-coords the player has moved this session
+    public float startX = 256.0f;
+    public float startY = 256.0f;
+    public static float worldX = 256.0f;    // x-coords the player has moved this session
+    public static float worldY = 256.0f;    // y-coords the player has moved this session
+
+    // Tile Variables
+    public final int maxWorldCol = 70;
+    public final int maxWorldRow = 35;
+    public float screenX;
+    public float screenY;
+    TileManager tileManager = new TileManager(this);
 
     @FXML
     private Canvas gameCanvas;
@@ -80,6 +90,10 @@ public class GameView {
 
         gameCanvas.widthProperty().addListener(evt -> drawBackground());
         gameCanvas.heightProperty().addListener(evt -> drawBackground());
+
+        // Tile-related variable declarations
+        screenX = (float) (gameCanvas.getWidth() / 2) - 64;
+        screenY = (float) (gameCanvas.getHeight() / 2) - 64;
 
         timer = new AnimationTimer() {
             @Override
@@ -225,11 +239,14 @@ public class GameView {
 
     private void drawGame(double delta) {
         drawBackground();
+        tileManager.draw(gc);
 
         double translateX = (gameCanvas.getWidth() / 2) - startX - worldX - 64;    // the 0 will draw the player in the center of the screen
         double translateY = (gameCanvas.getHeight() / 2) - startY - worldY - 64;
 
         gc.translate(translateX, translateY);
+
+//        tileManager.draw(gc);
 
         for (Player p : others.values()) {
             Vector2 diff = Vector2.sub(p.getPosition(), p.getLastPosition());
