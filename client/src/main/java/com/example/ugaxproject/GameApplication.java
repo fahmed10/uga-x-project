@@ -21,7 +21,7 @@ public class GameApplication extends Application {
 
     public static void switchToStartScreen() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 500, 300);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 500);
         primaryStage.setScene(scene);
     }
 
