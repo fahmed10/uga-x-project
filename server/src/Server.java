@@ -62,6 +62,7 @@ public class Server extends Thread {
                 case PacketType.KEEP_ALIVE -> new KeepAlivePacket(dPacket.getData());
                 case PacketType.STRING -> new StringPacket(dPacket.getData());
                 case PacketType.REQUEST -> new PacketRequestPacket(dPacket.getData());
+                case PacketType.DAMAGE -> new DamagePacket(dPacket.getData());
                 default -> throw new IllegalStateException("Unexpected packet type: " + dPacket.getData()[0]);
             };
 
@@ -104,13 +105,13 @@ public class Server extends Thread {
                 yield new LoginAckPacket(userId);
             }
             case PlayerMovePacket playerMovePacket -> {
-                System.out.println("[" + playerMovePacket.userId + "] Move to: " + playerMovePacket.position);
+                // System.out.println("[" + playerMovePacket.userId + "] Move to: " + playerMovePacket.position);
                 gameWorld.movePlayerTo(playerMovePacket.userId, playerMovePacket.position, playerMovePacket.direction);
                 broadcast(playerMovePacket, playerMovePacket.userId);
                 yield null;
             }
             case KeepAlivePacket keepAlivePacket -> {
-                System.out.println("[" + keepAlivePacket.userId + "] Keep alive");
+                // System.out.println("[" + keepAlivePacket.userId + "] Keep alive");
 
                 if (!gameWorld.hasPlayerId(keepAlivePacket.userId)) {
                     yield null;
@@ -119,6 +120,11 @@ public class Server extends Thread {
                 gameWorld.getPlayer(keepAlivePacket.userId).keepAlive();
                 Player player = gameWorld.getPlayer(keepAlivePacket.userId);
                 broadcast(new PlayerMovePacket(keepAlivePacket.userId, player.direction, player.position), keepAlivePacket.userId);
+                yield null;
+            }
+            case DamagePacket damagePacket -> {
+                System.out.println("[" + damagePacket.userId + "] Damaged " + damagePacket.targetUserId + " by " + damagePacket.damage);
+                broadcast(damagePacket, damagePacket.userId);
                 yield null;
             }
             case PacketRequestPacket packetRequestPacket -> {

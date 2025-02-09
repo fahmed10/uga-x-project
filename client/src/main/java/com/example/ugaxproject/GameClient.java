@@ -29,6 +29,10 @@ public class GameClient {
         }
     }
 
+    public void damage(byte targetUserId, byte damage) throws IOException {
+        client.send(new DamagePacket(userId, damage, targetUserId));
+    }
+
     public void close() {
         client.close();
     }
