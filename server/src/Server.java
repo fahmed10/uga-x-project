@@ -123,20 +123,20 @@ public class Server extends Thread {
                 yield null;
             }
             case DamagePacket damagePacket -> {
-                System.out.println("[" + damagePacket.userId + "] Damaged " + damagePacket.targetUserId + " by " + damagePacket.damage);
+                System.out.println("[" + damagePacket.userId + "] Damaged " + damagePacket.targetUserId + " to " + damagePacket.newHealth);
+                broadcast(damagePacket, damagePacket.userId);
+                broadcast(damagePacket, damagePacket.userId);
                 broadcast(damagePacket, damagePacket.userId);
                 yield null;
             }
             case PacketRequestPacket packetRequestPacket -> {
                 Queue<Packet> queue = packetQueue.getOrDefault(packetRequestPacket.userId, new LinkedList<>());
-                Packet[] packets = queue.toArray(new Packet[0]);
-                packetQueue.clear();
 
-                if (packets.length == 1) {
-                    yield packets[0];
-                } else {
-                    yield new CompositePacket(packets);
+                if (!queue.isEmpty()) {
+                    yield queue.remove();
                 }
+
+                yield new CompositePacket();
             }
             default -> {
                 System.out.println("Unhandled packet");

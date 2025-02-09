@@ -286,8 +286,8 @@ public class Player {
         return lastPosition;
     }
 
-    public void damage(int damage) {
-        health -= damage;
+    public void setHealth(int newHealth) {
+        health = newHealth;
     }
 
     public int getHealth() {
