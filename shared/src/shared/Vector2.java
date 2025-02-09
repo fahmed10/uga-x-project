@@ -97,4 +97,9 @@ public class Vector2 {
     public static Vector2 scale(Vector2 v1, float scale) {
         return new Vector2(v1.x * scale, v1.y * scale);
     }
+
+    public static Vector2 lerp(Vector2 v1, Vector2 v2, float t) {
+        t = Math.clamp(t, 0, 1);
+        return new Vector2(v1.x * (1-t) + v2.x * t, v1.y * (1-t) + v2.y * t);
+    }
 }
