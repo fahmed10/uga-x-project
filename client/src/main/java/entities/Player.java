@@ -49,7 +49,7 @@ public class Player {
     public Vector2 getPosition() {
         return position;
     }
-    
+
     public void draw(GraphicsContext gc) {
         if(state == State.NOT_ATTACKING) {
             if (direction == Direction.LEFT) {
