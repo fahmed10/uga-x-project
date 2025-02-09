@@ -137,13 +137,13 @@ public class GameView {
             case DamagePacket damagePacket -> {
                 if (others.containsKey(damagePacket.targetUserId)) {
                     Player other = others.get(damagePacket.targetUserId);
-                    other.damage(damagePacket.damage);
+                    other.setHealth(damagePacket.newHealth);
                 } else if (client.userId == damagePacket.targetUserId) {
-                    player.damage(damagePacket.damage);
+                    player.setHealth(damagePacket.newHealth);
 
                     if (player.getHealth() <= 0) {
                         // TODO: Game over logic
-                        GameApplication.showAlert("Game Over!", "!", Alert.AlertType.ERROR);
+                        System.out.println("Game over!");
                     }
                 }
             }
@@ -263,8 +263,9 @@ public class GameView {
             for (Map.Entry<Byte, Player> pair : others.entrySet()) {
                 if (pair.getValue() != player && Vector2.distance(player.getPosition(), pair.getValue().getPosition()) < 100) {
                     try {
-                        client.damage(pair.getKey(), (byte) 21);
-                        pair.getValue().damage(21);
+                        int newHealth = pair.getValue().getHealth() - 21;
+                        client.damage(pair.getKey(), (byte) newHealth);
+                        pair.getValue().setHealth(newHealth);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

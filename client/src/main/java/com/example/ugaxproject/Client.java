@@ -13,7 +13,7 @@ public class Client {
     private final DatagramSocket socket;
     private final InetAddress address;
     private final int port;
-    private static final int TIMEOUT = 3000;
+    private static final int TIMEOUT = 1500;
 
     public Client(String host, int port) throws IOException {
         socket = new DatagramSocket();
