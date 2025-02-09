@@ -49,6 +49,9 @@ public class GameView {
     public float screenY;
     TileManager tileManager = new TileManager(this);
 
+    // Collision
+    public CollisionChecker cChecker = new CollisionChecker(this);
+
     @FXML
     private Canvas gameCanvas;
 
@@ -83,7 +86,7 @@ public class GameView {
         }
 
         gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(startX,startY);
+        player = new Player(startX,startY, this);
 
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
@@ -152,7 +155,7 @@ public class GameView {
         switch (packet) {
             case PlayerMovePacket playerMovePacket -> {
                 if (!others.containsKey(playerMovePacket.userId)) {
-                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y, true));
+                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y, true, this));
                 } else {
                     Player other = others.get(playerMovePacket.userId);
                     other.moveTo(playerMovePacket.position.x, playerMovePacket.position.y);
@@ -161,7 +164,7 @@ public class GameView {
             }
             case PlayerJoinPacket playerJoinPacket -> {
                 if (!others.containsKey(playerJoinPacket.userId)) {
-                    others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true));
+                    others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true, this));
                 }
             }
             case PlayerLeavePacket playerLeavePacket -> {

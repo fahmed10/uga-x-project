@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import shared.Vector2;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class Player {
     private Image avatar;
     private Image legs;
     private Image guitar;
-    private Direction direction = Direction.LEFT;
+    public Direction direction = Direction.LEFT;
     private State state = State.NOT_ATTACKING;
     protected float walkCounter = 0.0f;
     protected float attackCounter = 0.0f;
@@ -27,24 +28,31 @@ public class Player {
     protected Vector2 lastPosition;
     protected long lastPositionTime;
     protected boolean remote = false;
-    protected float speed = 500;
+    public float speed = 500;
     protected int maxHealth = 100;
     protected int health = maxHealth;
     protected float rollCounter = 0.0f;
     protected boolean attacking = false;
 
-    //public boolean runningLeft = true;
+    // Collision data
+    public Rectangle solidArea = new Rectangle(0, 0, 96, 128);
+    public int solidAreaDefaultX = solidArea.x;
+    public int solidAreaDefaultY = solidArea.y;
+    public boolean xCollisionOn = false;
+    public boolean yCollisionOn = false;
+    GameView gv;
 
-    public Player(float startX, float startY) {
+    public Player(float startX, float startY, GameView gv) {
         position = new Vector2(startX, startY);
         lastPosition = new Vector2(startX, startY);
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
         legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
         guitar = new Image(getClass().getResourceAsStream("/sprites/guitar_diagonal_swing_left.png"));
+        this.gv = gv;
     }
 
-    public Player(float startX, float startY, boolean remote) {
-        this(startX, startY);
+    public Player(float startX, float startY, boolean remote, GameView gv) {
+        this(startX, startY, gv);
         this.remote = remote;
     }
 
@@ -106,9 +114,27 @@ public class Player {
         } else {
             inputVector.scale(speed*(float) deltaTime);
         }
-        position.add(inputVector.x, inputVector.y);
-        GameView.worldX += inputVector.x;
-        GameView.worldY += inputVector.y;
+
+        // Reset collision
+        xCollisionOn = false;
+        yCollisionOn = false;
+
+        // Check for tile collision
+        gv.cChecker.checkTile(this);
+
+//        position.add(inputVector.x, inputVector.y);
+
+        if (!xCollisionOn)
+        {
+            position.x += inputVector.x;
+            GameView.worldX += inputVector.x;
+        }
+        if (!yCollisionOn)
+        {
+            position.y += inputVector.y;
+            GameView.worldY += inputVector.y;
+        }
+
         return isRolling;
     }
 
