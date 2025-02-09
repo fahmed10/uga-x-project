@@ -23,7 +23,7 @@ public class GameClient {
     }
 
     public void keepAlive() throws IOException {
-        if (System.currentTimeMillis() - lastKeepAlive > 2000) {
+        if (System.currentTimeMillis() - lastKeepAlive > 1000) {
             client.send(new KeepAlivePacket(userId));
             lastKeepAlive = System.currentTimeMillis();
         }

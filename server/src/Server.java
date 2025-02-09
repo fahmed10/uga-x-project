@@ -13,6 +13,10 @@ public class Server extends Thread {
     private final GameWorld gameWorld = new GameWorld();
     Map<Byte, Queue<Packet>> packetQueue = new HashMap<>();
 
+    void direct(Packet packet, byte userId) {
+        packetQueue.computeIfAbsent(userId, k -> new LinkedList<>()).add(packet);
+    }
+
     void broadcast(Packet packet) {
         broadcast(packet, (byte) -1);
     }
@@ -23,7 +27,7 @@ public class Server extends Thread {
                 continue;
             }
 
-            packetQueue.computeIfAbsent(player.userId, k -> new LinkedList<>()).add(packet);
+            direct(packet, player.userId);
         }
     }
 
@@ -91,12 +95,17 @@ public class Server extends Thread {
                 }
 
                 broadcast(new PlayerJoinPacket(userId, new Vector2()), userId);
+                for (Player player : gameWorld.getPlayers()) {
+                    if (player.userId != userId) {
+                        direct(new PlayerJoinPacket(player.userId, player.position), userId);
+                    }
+                }
 
                 yield new LoginAckPacket(userId);
             }
             case PlayerMovePacket playerMovePacket -> {
                 System.out.println("[" + playerMovePacket.userId + "] Move to: " + playerMovePacket.position);
-                gameWorld.movePlayerTo(playerMovePacket.userId, playerMovePacket.position);
+                gameWorld.movePlayerTo(playerMovePacket.userId, playerMovePacket.position, playerMovePacket.direction);
                 broadcast(playerMovePacket, playerMovePacket.userId);
                 yield null;
             }
@@ -108,13 +117,22 @@ public class Server extends Thread {
                 }
 
                 gameWorld.getPlayer(keepAlivePacket.userId).keepAlive();
+                Player player = gameWorld.getPlayer(keepAlivePacket.userId);
+                broadcast(new PlayerMovePacket(keepAlivePacket.userId, player.direction, player.position), keepAlivePacket.userId);
                 yield null;
             }
             case PacketRequestPacket packetRequestPacket -> {
                 Queue<Packet> queue = packetQueue.getOrDefault(packetRequestPacket.userId, new LinkedList<>());
                 Packet[] packets = queue.toArray(new Packet[0]);
                 packetQueue.clear();
-                yield new CompositePacket(packets);
+
+                if (packets.length == 1) {
+                    System.out.println(">>>> Sent " + packets[0].getClass().getSimpleName());
+                    yield packets[0];
+                } else {
+                    if(packets.length > 1) System.out.println(">>>> Sent Composite (" + packets.length + ")");
+                    yield new CompositePacket(packets);
+                }
             }
             default -> {
                 System.out.println("Unhandled packet");

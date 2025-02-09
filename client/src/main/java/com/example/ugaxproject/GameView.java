@@ -91,6 +91,16 @@ public class GameView {
                         synchronized (packetQueue) {
                             packetQueue.addAll(List.of(packet.packets));
                         }
+                    } else {
+                        Packet packet = switch (dPacket.getData()[0]) {
+                            case PacketType.PLAYER_JOIN -> new PlayerJoinPacket(dPacket.getData());
+                            case PacketType.PLAYER_LEAVE -> new PlayerLeavePacket(dPacket.getData());
+                            case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
+                            default -> throw new IllegalStateException("Unexpected value: " + dPacket.getData()[0]);
+                        };
+                        synchronized (packetQueue) {
+                            packetQueue.add(packet);
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -109,19 +119,18 @@ public class GameView {
         switch (packet) {
             case PlayerMovePacket playerMovePacket -> {
                 if (!others.containsKey(playerMovePacket.userId)) {
-                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y));
+                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y, true));
                 } else {
                     Player other = others.get(playerMovePacket.userId);
-                    other.getPosition().set(playerMovePacket.position.x, playerMovePacket.position.y);
+                    other.moveTo(playerMovePacket.position.x, playerMovePacket.position.y);
                     other.setDirection(directions[playerMovePacket.direction]);
                 }
             }
             case PlayerJoinPacket playerJoinPacket -> {
-                if (others.containsKey(playerJoinPacket.userId)) {
-                    return;
-                }
-
-                others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y));
+                others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true));
+            }
+            case PlayerLeavePacket playerLeavePacket -> {
+                others.remove(playerLeavePacket.userId);
             }
             default -> {}
         }
@@ -189,12 +198,19 @@ public class GameView {
         gc.translate(translateX, translateY);
 
         for (Player p : others.values()) {
+            Vector2 diff = Vector2.sub(p.getPosition(), p.getLastPosition());
+            Set<Input> inputSet = new HashSet<>();
+            if (diff.x > 1) inputSet.add(Input.MOVE_RIGHT);
+            if (diff.x < -1) inputSet.add(Input.MOVE_LEFT);
+            if (diff.y > 1) inputSet.add(Input.MOVE_DOWN);
+            if (diff.y < -1) inputSet.add(Input.MOVE_UP);
+            p.walkAnimation(p.getDirection(), inputSet, delta);
             p.draw(gc);
         }
 
         player.walkAnimation(direction, inputs, delta);
 //        player.draw(gc);
-        player.drawCentered(gc);
+        player.draw(gc);
 
         gc.translate(-translateX, -translateY);
     }

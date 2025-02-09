@@ -1,6 +1,7 @@
 package entities;
 
 import com.example.ugaxproject.Direction;
+import com.example.ugaxproject.GameView;
 import com.example.ugaxproject.Input;
 import com.example.ugaxproject.State;
 import javafx.animation.AnimationTimer;
@@ -8,11 +9,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import shared.Vector2;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.Random;
 import java.util.Set;
 
-public class Player extends Entity {
+public class Player {
     private static final int SIZE = 128;
     private Image avatar;
     private Image legs;
@@ -21,13 +21,29 @@ public class Player extends Entity {
     private State state = State.NOT_ATTACKING;
     protected float walkCounter = 0.0f;
     protected float attackCounter = 0.0f;
+    protected Vector2 position;
+    protected Vector2 lastPosition;
+    protected long lastPositionTime;
+    protected boolean remote = false;
+    protected float speed = 500;
+    protected int maxHealth = 100;
+    protected int health = maxHealth;
+    protected float rollCounter = 0.0f;
+    protected boolean attacking = false;
+
     //public boolean runningLeft = true;
 
     public Player(float startX, float startY) {
-        super(startX, startY);
+        position = new Vector2(startX, startY);
+        lastPosition = new Vector2(startX, startY);
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
         legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
         guitar = new Image(getClass().getResourceAsStream("/sprites/guitar_diagonal_swing_left.png"));
+    }
+
+    public Player(float startX, float startY, boolean remote) {
+        this(startX, startY);
+        this.remote = remote;
     }
 
     public Vector2 getPosition() {
@@ -71,8 +87,44 @@ public class Player extends Entity {
             gc.drawImage(guitar, position.x + 30, position.y+25, SIZE, SIZE);
         }
     }
+    
+    public boolean move(Vector2 inputVector, boolean isRolling, double deltaTime) {
+        inputVector.normalize();
+        if (isRolling) {
+            inputVector.scale(speed*(float) deltaTime*3);
+            rollCounter += (float) deltaTime;
+            if (rollCounter >= 0.1) {
+                rollCounter = 0;
+                isRolling = false;
+            }
+        } else {
+            inputVector.scale(speed*(float) deltaTime);
+        }
+        position.add(inputVector.x, inputVector.y);
+        GameView.worldX += inputVector.x;
+        GameView.worldY += inputVector.y;
+        return isRolling;
+    }
 
-    public void drawCentered(GraphicsContext gc) {
+    public void attack() {
+        // Handle other cases if needed
+        attacking = true;
+        System.out.println("attacking is true");
+    }
+
+    public void moveTo(float x, float y) {
+        lastPositionTime = System.currentTimeMillis();
+        this.lastPosition.set(position.x, position.y);
+        this.position.set(x, y);
+    }
+
+    public void draw(GraphicsContext gc) {
+        Vector2 position = this.position;
+
+        if (remote) {
+            position = Vector2.lerp(lastPosition, position, new Random().nextFloat());
+        }
+
         if (direction == Direction.LEFT) {
             gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
             gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
@@ -246,5 +298,9 @@ public class Player extends Entity {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public Vector2 getLastPosition() {
+        return lastPosition;
     }
 }
