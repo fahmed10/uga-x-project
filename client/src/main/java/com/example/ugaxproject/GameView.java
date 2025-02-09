@@ -18,11 +18,14 @@ import javafx.stage.Stage;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
-import shared.Vector2;
+import shared.*;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.util.*;
 
 
 public class GameView {
@@ -34,6 +37,9 @@ public class GameView {
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
     long lastTime = 0;
+    Map<Byte, Player> others = new HashMap<>();
+    final Queue<Packet> packetQueue = new LinkedList<>();
+    private static Direction[] directions = Direction.values();
 
     @FXML
     private Canvas gameCanvas;
@@ -67,6 +73,32 @@ public class GameView {
         };
 
         timer.start();
+
+        new Thread(() -> {
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                InetAddress address = InetAddress.getByName(Constants.SERVER_HOSTNAME);
+                int port = Constants.SERVER_PORT;
+                DatagramPacket dPacket;
+
+                while (true) {
+                    byte[] buffer = new PacketRequestPacket(client.userId).getData();
+                    dPacket = new DatagramPacket(buffer, buffer.length, address, port);
+                    socket.send(dPacket);
+                    buffer = new byte[Constants.MAX_PACKET_LENGTH];
+                    dPacket = new DatagramPacket(buffer, buffer.length, address, port);
+                    socket.receive(dPacket);
+                    if (dPacket.getData()[0] == PacketType.COMPOSITE) {
+                        CompositePacket packet = new CompositePacket(dPacket.getData());
+                        synchronized (packetQueue) {
+                            packetQueue.addAll(List.of(packet.packets));
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public void setupGame() {
@@ -75,12 +107,32 @@ public class GameView {
         // server should be authoritatively informing the client of when the game is set up.
     }
 
+    private void handlePacket(Packet packet) {
+        switch (packet) {
+            case PlayerMovePacket playerMovePacket -> {
+                if (!others.containsKey(playerMovePacket.userId)) {
+                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y));
+                } else {
+                    Player other = others.get(playerMovePacket.userId);
+                    other.getPosition().set(playerMovePacket.position.x, playerMovePacket.position.y);
+                    other.setDirection(directions[playerMovePacket.direction]);
+                }
+            }
+            default -> {
+            }
+        }
+    }
+
     void run(long currentTime) {
         // Establish delta time to normalize framerates
         double delta = (currentTime - lastTime) / 1E9;
         lastTime = System.nanoTime();
-        System.out.println(delta);
-        System.out.println(1/delta);
+
+        synchronized (packetQueue) {
+            while (!packetQueue.isEmpty()) {
+                handlePacket(packetQueue.poll());
+            }
+        }
 
         // Update player movement based on movement booleans
         inputVector.set(0, 0);
@@ -97,7 +149,7 @@ public class GameView {
             player.move(inputVector, stillRolling, delta);
             Vector2 newPosition = player.getPosition();
             try {
-                client.moveTo(newPosition);
+                client.moveTo(newPosition, player.getDirection());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -122,6 +174,10 @@ public class GameView {
 
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+
+        for (Player p : others.values()) {
+            p.draw(gc);
+        }
 
         player.walkAnimation(direction, inputs);
         player.draw(gc);

@@ -5,13 +5,31 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Server extends Thread {
     private final DatagramSocket socket;
     private final byte[] buffer = new byte[Constants.MAX_PACKET_LENGTH];
     private final GameWorld gameWorld = new GameWorld();
+    Map<Byte, Queue<Packet>> packetQueue = new HashMap<>();
+
+    void broadcast(Packet packet) {
+        broadcast(packet, (byte) -1);
+    }
+
+    void broadcast(Packet packet, byte excludeId) {
+        for (Player player : gameWorld.getPlayers()) {
+            if (player.userId == excludeId) {
+                continue;
+            }
+
+            packetQueue.computeIfAbsent(player.userId, k -> new LinkedList<>()).add(packet);
+        }
+    }
+
+    void clearBroadcast(byte userId) {
+        packetQueue.remove(userId);
+    }
 
     public Server(int port) throws SocketException {
         socket = new DatagramSocket(port);
@@ -38,32 +56,24 @@ public class Server extends Thread {
                 case PacketType.LOGIN -> new LoginPacket(dPacket.getData());
                 case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
                 case PacketType.KEEP_ALIVE -> new KeepAlivePacket(dPacket.getData());
+                case PacketType.STRING -> new StringPacket(dPacket.getData());
+                case PacketType.REQUEST -> new PacketRequestPacket(dPacket.getData());
                 default -> throw new IllegalStateException("Unexpected packet type: " + dPacket.getData()[0]);
             };
 
             for (Player lostPlayer : lostPlayers) {
-                for (Player player : gameWorld.getPlayers()) {
-                    dPacket.setAddress(player.address);
-                    dPacket.setPort(player.port);
-                    dPacket.setData(new PlayerLeavePacket(lostPlayer.userId).getData());
-                    try {
-                        socket.send(dPacket);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                clearBroadcast(lostPlayer.userId);
+                broadcast(new PlayerLeavePacket(lostPlayer.userId));
             }
 
             try {
                 Packet response = handlePacket(received, dPacket);
-                if (response == null) {
-                    continue;
+                if (response != null) {
+                    dPacket.setAddress(address);
+                    dPacket.setPort(port);
+                    dPacket.setData(response.getData());
+                    socket.send(dPacket);
                 }
-
-                dPacket.setAddress(address);
-                dPacket.setPort(port);
-                dPacket.setData(response.getData());
-                socket.send(dPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -80,40 +90,36 @@ public class Server extends Thread {
                     yield null;
                 }
 
-                for (Player player : gameWorld.getPlayers()) {
-                    if (player.userId == userId) {
-                        continue;
-                    }
-
-                    dPacket.setAddress(player.address);
-                    dPacket.setPort(player.port);
-                    dPacket.setData(new PlayerJoinPacket(userId, new Vector2()).getData());
-                    socket.send(dPacket);
-                }
+                broadcast(new PlayerJoinPacket(userId, new Vector2()), userId);
 
                 yield new LoginAckPacket(userId);
             }
             case PlayerMovePacket playerMovePacket -> {
                 System.out.println("[" + playerMovePacket.userId + "] Move to: " + playerMovePacket.position);
                 gameWorld.movePlayerTo(playerMovePacket.userId, playerMovePacket.position);
-                for (Player player : gameWorld.getPlayers()) {
-                    if (player.userId == playerMovePacket.userId) {
-                        continue;
-                    }
-
-                    dPacket.setAddress(player.address);
-                    dPacket.setPort(player.port);
-                    socket.send(dPacket);
-                    System.out.println(player.address + " / " + player.port);
-                }
+                broadcast(playerMovePacket, playerMovePacket.userId);
                 yield null;
             }
             case KeepAlivePacket keepAlivePacket -> {
                 System.out.println("[" + keepAlivePacket.userId + "] Keep alive");
+
+                if (!gameWorld.hasPlayerId(keepAlivePacket.userId)) {
+                    yield null;
+                }
+
                 gameWorld.getPlayer(keepAlivePacket.userId).keepAlive();
                 yield null;
             }
-            default -> throw new IllegalStateException("Unhandled packet");
+            case PacketRequestPacket packetRequestPacket -> {
+                Queue<Packet> queue = packetQueue.getOrDefault(packetRequestPacket.userId, new LinkedList<>());
+                Packet[] packets = queue.toArray(new Packet[0]);
+                packetQueue.clear();
+                yield new CompositePacket(packets);
+            }
+            default -> {
+                System.out.println("Unhandled packet");
+                yield null;
+            }
         };
     }
 }

@@ -7,4 +7,7 @@ public interface PacketType {
     byte PLAYER_JOIN = 3;
     byte KEEP_ALIVE = 4;
     byte PLAYER_LEAVE = 5;
+    byte STRING = 6;
+    byte COMPOSITE = 7;
+    byte REQUEST = 8;
 }

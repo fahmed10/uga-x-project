@@ -32,7 +32,7 @@ public class Client {
         }
 
         buffer = new byte[Constants.MAX_PACKET_LENGTH];
-        dPacket = new DatagramPacket(buffer, buffer.length);
+        dPacket = new DatagramPacket(buffer, buffer.length, address, port);
         socket.receive(dPacket);
 
         buffer = dPacket.getData();
@@ -43,6 +43,7 @@ public class Client {
     }
 
     public void close() {
+        socket.disconnect();
         socket.close();
     }
 }

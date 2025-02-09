@@ -55,4 +55,8 @@ public class GameWorld {
     public Collection<Player> getPlayers() {
         return Collections.unmodifiableCollection(players.values());
     }
+
+    public boolean hasPlayerId(byte userId) {
+        return players.containsKey(userId);
+    }
 }
