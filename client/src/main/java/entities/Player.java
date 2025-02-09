@@ -73,14 +73,36 @@ public class Player extends Entity {
     }
 
     public void drawCentered(GraphicsContext gc) {
-        if (direction == Direction.LEFT) {
-            gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
-            gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
+        if(state == State.NOT_ATTACKING) {
+            if (direction == Direction.LEFT) {
+                gc.drawImage(guitar, position.x + 30, position.y, SIZE, SIZE);
+                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
+                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+            } else if (direction == Direction.RIGHT) {
+                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
+                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+                gc.drawImage(guitar, position.x - 5, position.y, SIZE, SIZE);
+            }
+        }
+        else if(state == State.IS_ATTACKING || state == State.IS_ATTACKING_LEFT || state == State.IS_ATTACKING_RIGHT) {
+            if (direction == Direction.LEFT) {
+                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
+                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+                gc.drawImage(guitar, position.x , position.y-25, SIZE, SIZE);
+            } else {
+                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
+                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+                gc.drawImage(guitar, position.x , position.y-25, SIZE, SIZE);
+            }
+        }
+        else if(state == State.AFTER_ATTACKING_LEFT) {
+            gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
             gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-        } else {
-            gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
+            gc.drawImage(guitar, position.x - 30, position.y+25, SIZE, SIZE);
+        } else if(state == State.AFTER_ATTACKING_RIGHT) {
+            gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
             gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-            gc.drawImage(guitar, position.x-5, position.y, SIZE, SIZE);
+            gc.drawImage(guitar, position.x + 30, position.y+25, SIZE, SIZE);
         }
     }
 
