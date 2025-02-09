@@ -1,5 +1,6 @@
 package entities;
 import com.example.ugaxproject.Direction;
+import com.example.ugaxproject.GameView;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -38,6 +39,8 @@ public abstract class Entity {
             inputVector.scale(speed*(float) deltaTime);
         }
         position.add(inputVector.x, inputVector.y);
+        GameView.worldX += inputVector.x;
+        GameView.worldY += inputVector.y;
         return isRolling;
     }
 

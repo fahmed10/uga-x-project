@@ -9,12 +9,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.scene.*;
-import javafx.scene.image.*;
-import javafx.stage.Stage;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
@@ -40,6 +34,10 @@ public class GameView {
     Map<Byte, Player> others = new HashMap<>();
     final Queue<Packet> packetQueue = new LinkedList<>();
     private static Direction[] directions = Direction.values();
+    float startX = 100.0f;
+    float startY = 100.0f;
+    public static float worldX = 0.0f;    // x-coords the player has moved this session
+    public static float worldY = 0.0f;    // y-coords the player has moved this session
 
     @FXML
     private Canvas gameCanvas;
@@ -57,13 +55,13 @@ public class GameView {
         }
 
         gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(100,100);
+        player = new Player(startX,startY);
 
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
 
-        gameCanvas.widthProperty().addListener(evt -> drawGame());
-        gameCanvas.heightProperty().addListener(evt -> drawGame());
+        gameCanvas.widthProperty().addListener(evt -> drawBackground());
+        gameCanvas.heightProperty().addListener(evt -> drawBackground());
 
         timer = new AnimationTimer() {
             @Override
@@ -146,7 +144,6 @@ public class GameView {
             if (!stillRolling) {
                 inputs.remove(Input.ROLL);
             }
-            player.move(inputVector, stillRolling, delta);
             Vector2 newPosition = player.getPosition();
             try {
                 client.moveTo(newPosition, player.getDirection());
@@ -166,21 +163,33 @@ public class GameView {
         }
 
         // draw/paint scene for current frame
-        drawGame();
+        drawGame(delta);
     }
 
-    private void drawGame() {
+    private void drawBackground() {
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
         gc.setFill(Color.GREEN);
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+    }
 
         for (Player p : others.values()) {
             p.draw(gc);
         }
 
-        player.walkAnimation(direction, inputs);
-        player.draw(gc);
+    private void drawGame(double delta) {
+        drawBackground();
+
+        double translateX = (gameCanvas.getWidth() / 2) - startX - worldX - 64;    // the 0 will draw the player in the center of the screen
+        double translateY = (gameCanvas.getHeight() / 2) - startY - worldY - 64;
+
+        gc.translate(translateX, translateY);
+
+        player.walkAnimation(direction, inputs, delta);
+//        player.draw(gc);
+        player.drawCentered(gc);
+
+        gc.translate(-translateX, -translateY);
     }
 
     @FXML
