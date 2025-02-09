@@ -1,0 +1,5 @@
+package com.example.ugaxproject;
+
+public enum State {
+    IS_ATTACKING, IS_ATTACKING_RIGHT, IS_ATTACKING_LEFT, NOT_ATTACKING, AFTER_ATTACKING_RIGHT, AFTER_ATTACKING_LEFT;
+}
