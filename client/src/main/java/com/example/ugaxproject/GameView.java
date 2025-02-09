@@ -121,6 +121,7 @@ public class GameView {
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
     }
 
+
     private void drawGame(double delta) {
         drawBackground();
 
