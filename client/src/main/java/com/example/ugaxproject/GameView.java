@@ -103,6 +103,12 @@ public class GameView {
         };
 
         timer.start();
+        player.getPosition().add(150 + (new Random().nextFloat(200)), 150);
+        try {
+            client.moveTo(player.getPosition(), player.getDirection());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         new Thread(() -> {
             try {
