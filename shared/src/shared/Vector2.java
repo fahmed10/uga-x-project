@@ -102,4 +102,8 @@ public class Vector2 {
         t = Math.clamp(t, 0, 1);
         return new Vector2(v1.x * (1-t) + v2.x * t, v1.y * (1-t) + v2.y * t);
     }
+
+    public static float distance(Vector2 v1, Vector2 v2) {
+        return (float)Math.sqrt(Math.pow(v2.x - v1.x, 2) + Math.pow(v2.y - v1.y, 2));
+    }
 }
