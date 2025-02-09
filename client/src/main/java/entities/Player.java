@@ -7,6 +7,8 @@ import com.example.ugaxproject.State;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import shared.Vector2;
 
 import java.util.Random;
@@ -82,6 +84,14 @@ public class Player {
             gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
             gc.drawImage(guitar, position.x + 30, position.y+25, SIZE, SIZE);
         }
+
+        gc.setFill(Color.RED);
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(3);
+        gc.fillRect(position.x, position.y, 125, 20);
+        gc.strokeRect(position.x, position.y, 125, 20);
+        gc.setFill(Color.LIMEGREEN);
+        gc.fillRect(position.x, position.y, health * 1.25, 20);
     }
     
     public boolean move(Vector2 inputVector, boolean isRolling, double deltaTime) {
@@ -274,5 +284,13 @@ public class Player {
 
     public Vector2 getLastPosition() {
         return lastPosition;
+    }
+
+    public void damage(int damage) {
+        health -= damage;
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

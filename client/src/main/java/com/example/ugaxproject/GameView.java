@@ -5,6 +5,7 @@ import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -96,6 +97,7 @@ public class GameView {
                             case PacketType.PLAYER_JOIN -> new PlayerJoinPacket(dPacket.getData());
                             case PacketType.PLAYER_LEAVE -> new PlayerLeavePacket(dPacket.getData());
                             case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
+                            case PacketType.DAMAGE -> new DamagePacket(dPacket.getData());
                             default -> throw new IllegalStateException("Unexpected value: " + dPacket.getData()[0]);
                         };
                         synchronized (packetQueue) {
@@ -131,6 +133,19 @@ public class GameView {
             }
             case PlayerLeavePacket playerLeavePacket -> {
                 others.remove(playerLeavePacket.userId);
+            }
+            case DamagePacket damagePacket -> {
+                if (others.containsKey(damagePacket.targetUserId)) {
+                    Player other = others.get(damagePacket.targetUserId);
+                    other.damage(damagePacket.damage);
+                } else if (client.userId == damagePacket.targetUserId) {
+                    player.damage(damagePacket.damage);
+
+                    if (player.getHealth() <= 0) {
+                        // TODO: Game over logic
+                        GameApplication.showAlert("Game Over!", "!", Alert.AlertType.ERROR);
+                    }
+                }
             }
             default -> {}
         }
@@ -244,6 +259,17 @@ public class GameView {
     void handleMousePress(MouseEvent event) {
         if (event.getEventType().equals(MOUSE_PRESSED)) {
             player.attack();
+
+            for (Map.Entry<Byte, Player> pair : others.entrySet()) {
+                if (pair.getValue() != player && Vector2.distance(player.getPosition(), pair.getValue().getPosition()) < 100) {
+                    try {
+                        client.damage(pair.getKey(), (byte) 21);
+                        pair.getValue().damage(21);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 

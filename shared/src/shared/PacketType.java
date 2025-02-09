@@ -10,4 +10,5 @@ public interface PacketType {
     byte STRING = 6;
     byte COMPOSITE = 7;
     byte REQUEST = 8;
+    byte DAMAGE = 9;
 }
