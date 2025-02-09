@@ -17,9 +17,10 @@ public class GameWorld {
         return userId;
     }
 
-    public void movePlayerTo(byte userId, Vector2 position) {
+    public void movePlayerTo(byte userId, Vector2 position, byte direction) {
         Player player = players.get(userId);
         player.position = position;
+        player.direction = direction;
         player.keepAlive();
     }
 
@@ -54,5 +55,9 @@ public class GameWorld {
 
     public Collection<Player> getPlayers() {
         return Collections.unmodifiableCollection(players.values());
+    }
+
+    public boolean hasPlayerId(byte userId) {
+        return players.containsKey(userId);
     }
 }

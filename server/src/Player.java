@@ -3,12 +3,13 @@ import shared.Vector2;
 import java.net.InetAddress;
 
 public class Player {
-    private static final int TIME_UNTIL_LOST = 6000;
+    private static final int TIME_UNTIL_LOST = 5000;
     final byte userId;
     final String username;
     InetAddress address;
     int port;
     Vector2 position;
+    byte direction;
     long lastPacketTime;
 
     public Player(byte userId, String username, InetAddress address, int port, Vector2 position) {

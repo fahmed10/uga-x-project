@@ -12,11 +12,14 @@ import javafx.scene.paint.Color;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
 
-import shared.Vector2;
+import shared.*;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.util.*;
 
 
 public class GameView {
@@ -28,6 +31,9 @@ public class GameView {
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
     long lastTime = 0;
+    Map<Byte, Player> others = new HashMap<>();
+    final Queue<Packet> packetQueue = new LinkedList<>();
+    private static Direction[] directions = Direction.values();
     float startX = 100.0f;
     float startY = 100.0f;
     public static float worldX = 0.0f;    // x-coords the player has moved this session
@@ -65,6 +71,42 @@ public class GameView {
         };
 
         timer.start();
+
+        new Thread(() -> {
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                InetAddress address = InetAddress.getByName(Constants.SERVER_HOSTNAME);
+                int port = Constants.SERVER_PORT;
+                DatagramPacket dPacket;
+
+                while (true) {
+                    byte[] buffer = new PacketRequestPacket(client.userId).getData();
+                    dPacket = new DatagramPacket(buffer, buffer.length, address, port);
+                    socket.send(dPacket);
+                    buffer = new byte[Constants.MAX_PACKET_LENGTH];
+                    dPacket = new DatagramPacket(buffer, buffer.length, address, port);
+                    socket.receive(dPacket);
+                    if (dPacket.getData()[0] == PacketType.COMPOSITE) {
+                        CompositePacket packet = new CompositePacket(dPacket.getData());
+                        synchronized (packetQueue) {
+                            packetQueue.addAll(List.of(packet.packets));
+                        }
+                    } else {
+                        Packet packet = switch (dPacket.getData()[0]) {
+                            case PacketType.PLAYER_JOIN -> new PlayerJoinPacket(dPacket.getData());
+                            case PacketType.PLAYER_LEAVE -> new PlayerLeavePacket(dPacket.getData());
+                            case PacketType.PLAYER_MOVE -> new PlayerMovePacket(dPacket.getData());
+                            default -> throw new IllegalStateException("Unexpected value: " + dPacket.getData()[0]);
+                        };
+                        synchronized (packetQueue) {
+                            packetQueue.add(packet);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public void setupGame() {
@@ -73,12 +115,37 @@ public class GameView {
         // server should be authoritatively informing the client of when the game is set up.
     }
 
+    private void handlePacket(Packet packet) {
+        switch (packet) {
+            case PlayerMovePacket playerMovePacket -> {
+                if (!others.containsKey(playerMovePacket.userId)) {
+                    others.put(playerMovePacket.userId, new Player(playerMovePacket.position.x, playerMovePacket.position.y, true));
+                } else {
+                    Player other = others.get(playerMovePacket.userId);
+                    other.moveTo(playerMovePacket.position.x, playerMovePacket.position.y);
+                    other.setDirection(directions[playerMovePacket.direction]);
+                }
+            }
+            case PlayerJoinPacket playerJoinPacket -> {
+                others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true));
+            }
+            case PlayerLeavePacket playerLeavePacket -> {
+                others.remove(playerLeavePacket.userId);
+            }
+            default -> {}
+        }
+    }
+
     void run(long currentTime) {
         // Establish delta time to normalize framerates
         double delta = (currentTime - lastTime) / 1E9;
         lastTime = System.nanoTime();
-//        System.out.println(delta);
-//        System.out.println(1/delta);
+
+        synchronized (packetQueue) {
+            while (!packetQueue.isEmpty()) {
+                handlePacket(packetQueue.poll());
+            }
+        }
 
         // Update player movement based on movement booleans
         inputVector.set(0, 0);
@@ -94,7 +161,7 @@ public class GameView {
             }
             Vector2 newPosition = player.getPosition();
             try {
-                client.moveTo(newPosition);
+                client.moveTo(newPosition, player.getDirection());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -130,9 +197,20 @@ public class GameView {
 
         gc.translate(translateX, translateY);
 
+        for (Player p : others.values()) {
+            Vector2 diff = Vector2.sub(p.getPosition(), p.getLastPosition());
+            Set<Input> inputSet = new HashSet<>();
+            if (diff.x > 1) inputSet.add(Input.MOVE_RIGHT);
+            if (diff.x < -1) inputSet.add(Input.MOVE_LEFT);
+            if (diff.y > 1) inputSet.add(Input.MOVE_DOWN);
+            if (diff.y < -1) inputSet.add(Input.MOVE_UP);
+            p.walkAnimation(p.getDirection(), inputSet, delta);
+            p.draw(gc);
+        }
+
         player.walkAnimation(direction, inputs, delta);
 //        player.draw(gc);
-        player.drawCentered(gc);
+        player.draw(gc);
 
         gc.translate(-translateX, -translateY);
     }
