@@ -18,6 +18,7 @@ public class Player extends Entity {
     private Direction direction = Direction.LEFT;
     private State state = State.NOT_ATTACKING;
     protected float walkCounter = 0.0f;
+    protected float attackCounter = 0.0f;
     //public boolean runningLeft = true;
 
     public Player(float startX, float startY) {
@@ -47,7 +48,7 @@ public class Player extends Entity {
                 gc.drawImage(guitar, position.x - 5, position.y, SIZE, SIZE);
             }
         }
-        else if(state == State.IS_ATTACKING){
+        else if(state == State.IS_ATTACKING || state == State.IS_ATTACKING_LEFT || state == State.IS_ATTACKING_RIGHT) {
             if (direction == Direction.LEFT) {
                 gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
                 gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
@@ -55,7 +56,7 @@ public class Player extends Entity {
             } else {
                 gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
                 gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-                gc.drawImage(guitar, position.x , position.y-25, SIZE, SIZE);
+                gc.drawImage(guitar, position.x, position.y-25, SIZE, SIZE);
             }
         }
         else if(state == State.AFTER_ATTACKING_LEFT) {
@@ -86,7 +87,8 @@ public class Player extends Entity {
                     avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_right.png"));
                     break;
             }
-        }else if(state == State.IS_ATTACKING){
+        }
+        /*else if(state == State.IS_ATTACKING){
             switch (direction) {
                 case Direction.LEFT:
                     legs = new Image(getClass().getResourceAsStream("/sprites/legs_left.png"));
@@ -99,7 +101,7 @@ public class Player extends Entity {
                     //avatar = new Image(getClass().getResourceAsStream("/sprites/right_overhead.png"));
                     break;
             }
-        }
+        }*/
         else{
             switch (direction) {
                 case Direction.LEFT:
@@ -140,11 +142,61 @@ public class Player extends Entity {
                 walkCounter = 0;
             }
         }
+
+        if(state == State.IS_ATTACKING || state == State.AFTER_ATTACKING_LEFT || state == State.IS_ATTACKING_LEFT
+        || state == State.IS_ATTACKING_RIGHT || state == State.AFTER_ATTACKING_RIGHT) {
+            this.attackAnimation(deltaTime);
+        }
+    }
+
+    public void attackAnimation(double deltaTime) {
+        if(state == State.AFTER_ATTACKING_LEFT || state == State.IS_ATTACKING_LEFT) {
+            attackCounter += (float) deltaTime;
+            if(attackCounter < 0.2) {
+                avatar = new Image(getClass().getResourceAsStream("/sprites/left_overhead.png"));
+                guitar = new Image(getClass().getResourceAsStream(("/sprites/guitar_overhead_left.png")));
+                state = State.IS_ATTACKING_LEFT;
+            }
+            else if(attackCounter < 0.8 && !(state == State.IS_ATTACKING_RIGHT)) {
+                avatar = new Image(getClass().getResourceAsStream("/sprites/swing_left_end_frame.png"));
+                guitar = new Image(getClass().getResourceAsStream(("/sprites/guitar_smear_frame_diagonal_left.png")));
+                state = State.AFTER_ATTACKING_LEFT;
+            }
+            else if(attackCounter < 1.8 && !(state == State.AFTER_ATTACKING_RIGHT)) {
+                attackCounter = 0;
+                state = State.NOT_ATTACKING;
+            }
+        }
+        else if(direction == Direction.RIGHT || state == State.AFTER_ATTACKING_RIGHT || state == State.IS_ATTACKING_RIGHT) {
+            attackCounter += (float) deltaTime;
+            if(attackCounter < 0.2){
+                avatar = new Image(getClass().getResourceAsStream("/sprites/right_overhead.png"));
+                guitar = new Image(getClass().getResourceAsStream(("/sprites/guitar_overhead_right.png")));
+                state = State.IS_ATTACKING_RIGHT;
+            }
+            else if(attackCounter < 0.8){
+                avatar = new Image(getClass().getResourceAsStream("/sprites/swing_right_end_frame.png"));
+                guitar = new Image(getClass().getResourceAsStream(("/sprites/guitar_smear_frame_diagonal_right.png")));
+                state = State.AFTER_ATTACKING_RIGHT;
+            }
+            else if(attackCounter < 1.8){
+                attackCounter = 0;
+                state = State.NOT_ATTACKING;
+            }
+        }
     }
 
 
 
     public void attack(){
+        if(state == State.NOT_ATTACKING && direction == Direction.LEFT) {
+            state = State.IS_ATTACKING_LEFT;
+        }
+        if(state == State.NOT_ATTACKING && direction == Direction.RIGHT) {
+            state = State.IS_ATTACKING;
+        }
+
+        /*
         if(state == State.IS_ATTACKING) { //Inside the if statement is just to test sprites
             if(direction == Direction.LEFT) {
                 avatar = new Image(getClass().getResourceAsStream("/sprites/swing_left_end_frame.png"));
@@ -169,7 +221,9 @@ public class Player extends Entity {
             }
 
             state = State.IS_ATTACKING;
+
         }
+         */
 
 
     }
