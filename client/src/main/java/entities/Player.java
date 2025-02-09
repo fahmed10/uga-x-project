@@ -9,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import shared.Vector2;
 
 import java.util.Random;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 public class Player {
     private static final int SIZE = 128;
+    private String username;
     private Image avatar;
     private Image legs;
     private Image guitar;
@@ -35,7 +37,8 @@ public class Player {
 
     //public boolean runningLeft = true;
 
-    public Player(float startX, float startY) {
+    public Player(float startX, float startY,String username) {
+        this.username = username;
         position = new Vector2(startX, startY);
         lastPosition = new Vector2(startX, startY);
         avatar = new Image(getClass().getResourceAsStream("/sprites/arm_facing_left.png"));
@@ -44,7 +47,7 @@ public class Player {
     }
 
     public Player(float startX, float startY, boolean remote) {
-        this(startX, startY);
+        this(startX, startY,"Player");
         this.remote = remote;
     }
 
@@ -53,6 +56,7 @@ public class Player {
     }
 
     public void draw(GraphicsContext gc) {
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/font/Rebellion.ttf"), 12);
         if(state == State.NOT_ATTACKING) {
             if (direction == Direction.LEFT) {
                 gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
@@ -92,6 +96,10 @@ public class Player {
         gc.strokeRect(position.x, position.y, 125, 20);
         gc.setFill(Color.LIMEGREEN);
         gc.fillRect(position.x, position.y, health * 1.25, 20);
+
+        gc.setFill(Color.WHITE);
+        gc.setFont(customFont);
+        gc.fillText(username, position.x+SIZE/4, position.y-10);
     }
     
     public boolean move(Vector2 inputVector, boolean isRolling, double deltaTime) {
@@ -292,5 +300,9 @@ public class Player {
 
     public int getHealth() {
         return health;
+    }
+
+    public String getUsername(){
+        return username;
     }
 }

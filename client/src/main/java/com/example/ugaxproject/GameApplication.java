@@ -25,12 +25,13 @@ public class GameApplication extends Application {
         primaryStage.setScene(scene);
     }
 
-    public static void switchToGameScreen(GameClient client) throws IOException {
+    public static void switchToGameScreen(GameClient client,String username) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root,800,600);
+
         GameView controller = fxmlLoader.getController();
-        controller.init(client);
+        controller.init(client,username);
 
         scene.setOnKeyPressed(controller::handleKeyPress);
 

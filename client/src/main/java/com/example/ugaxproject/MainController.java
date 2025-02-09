@@ -45,8 +45,12 @@ public class MainController {
     @FXML
     public void handleStartGame() {
         try {
-            client.login(usernameField.getText());
-            GameApplication.switchToGameScreen(client);
+            String username = usernameField.getText().trim();
+            if(username.isEmpty()) {
+                GameApplication.showAlert("Error","Please enter a username!",Alert.AlertType.ERROR);
+                return;
+            }
+            GameApplication.switchToGameScreen(client,username);
         } catch (IOException e) {
             GameApplication.showAlert("Network Error", "Connection failed. Please try again.", Alert.AlertType.ERROR);
         }

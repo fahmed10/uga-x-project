@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -24,6 +25,7 @@ import java.util.*;
 
 
 public class GameView {
+    private TextField usernameField;
     GameClient client;
     private GraphicsContext gc;
     private Player player;
@@ -46,7 +48,7 @@ public class GameView {
     @FXML
     private AnchorPane rootPane;
 
-    public void init(GameClient client) {
+    public void init(GameClient client,String username) {
         this.client = client;
         setupGame();
 
@@ -56,7 +58,7 @@ public class GameView {
         }
 
         gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(startX,startY);
+        player = new Player(startX,startY,username);
 
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
@@ -206,6 +208,7 @@ public class GameView {
 
     private void drawGame(double delta) {
         drawBackground();
+        player.draw(gc);
 
         double translateX = (gameCanvas.getWidth() / 2) - startX - worldX - 64;    // the 0 will draw the player in the center of the screen
         double translateY = (gameCanvas.getHeight() / 2) - startY - worldY - 64;
