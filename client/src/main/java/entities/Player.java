@@ -6,6 +6,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import shared.Vector2;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Set;
 
 public class Player extends Entity {
@@ -45,6 +47,18 @@ public class Player extends Entity {
         }
     }
 
+    public void drawCentered(GraphicsContext gc) {
+        if (direction == Direction.LEFT) {
+            gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
+            gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
+            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+        } else {
+            gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);
+            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
+            gc.drawImage(guitar, position.x-5, position.y, SIZE, SIZE);
+        }
+    }
+
     public void walkAnimation(Direction direction, Set<Input> inputs, double deltaTime) {
         this.direction = direction;
 
@@ -58,7 +72,7 @@ public class Player extends Entity {
 
         }
 
-        if(direction == Direction.LEFT && inputs.contains(Input.MOVE_LEFT)) {
+        if(direction == Direction.LEFT && (inputs.contains(Input.MOVE_LEFT) || inputs.contains(Input.MOVE_UP) || inputs.contains(Input.MOVE_DOWN))) {
             walkCounter += (float) deltaTime;
             if (walkCounter < 0.25) {
                 legs = new Image(getClass().getResourceAsStream("/sprites/legs_left_1.png"));
@@ -73,7 +87,7 @@ public class Player extends Entity {
             }
         }
 
-        if(direction == Direction.RIGHT && inputs.contains(Input.MOVE_RIGHT)) {
+        if(direction == Direction.RIGHT && (inputs.contains(Input.MOVE_RIGHT) || inputs.contains(Input.MOVE_UP) || inputs.contains(Input.MOVE_DOWN))) {
             walkCounter += (float) deltaTime;
             if (walkCounter < 0.25) {
                 legs = new Image(getClass().getResourceAsStream("/sprites/legs_right_1.png"));

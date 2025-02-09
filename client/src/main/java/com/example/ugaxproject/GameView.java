@@ -28,6 +28,10 @@ public class GameView {
     Vector2 inputVector = new Vector2();
     AnimationTimer timer;
     long lastTime = 0;
+    float startX = 100.0f;
+    float startY = 100.0f;
+    public static float worldX = 0.0f;    // x-coords the player has moved this session
+    public static float worldY = 0.0f;    // y-coords the player has moved this session
 
     @FXML
     private Canvas gameCanvas;
@@ -45,7 +49,7 @@ public class GameView {
         }
 
         gc = gameCanvas.getGraphicsContext2D();
-        player = new Player(100,100);
+        player = new Player(startX,startY);
 
         gameCanvas.widthProperty().bind(rootPane.widthProperty());
         gameCanvas.heightProperty().bind(rootPane.heightProperty());
@@ -73,8 +77,8 @@ public class GameView {
         // Establish delta time to normalize framerates
         double delta = (currentTime - lastTime) / 1E9;
         lastTime = System.nanoTime();
-        System.out.println(delta);
-        System.out.println(1/delta);
+//        System.out.println(delta);
+//        System.out.println(1/delta);
 
         // Update player movement based on movement booleans
         inputVector.set(0, 0);
@@ -120,8 +124,16 @@ public class GameView {
     private void drawGame(double delta) {
         drawBackground();
 
+        double translateX = (gameCanvas.getWidth() / 2) - startX - worldX - 64;    // the 0 will draw the player in the center of the screen
+        double translateY = (gameCanvas.getHeight() / 2) - startY - worldY - 64;
+
+        gc.translate(translateX, translateY);
+
         player.walkAnimation(direction, inputs, delta);
-        player.draw(gc);
+//        player.draw(gc);
+        player.drawCentered(gc);
+
+        gc.translate(-translateX, -translateY);
     }
 
     @FXML
