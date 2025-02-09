@@ -18,7 +18,7 @@ public class TileManager {
 
     public TileManager(GameView gv) {
         this.gv = gv;
-        tile = new Tile[2];    // Number of tile types in the game
+        tile = new Tile[8];    // Number of tile types in the game
         mapTileNum = new int[gv.maxWorldCol][gv.maxWorldRow];
         getTileImage();
         loadMap("/maps/map01.txt");
@@ -28,11 +28,15 @@ public class TileManager {
         for (int i = 0; i < tile.length; i++) {
             tile[i] = new Tile();
         }
-        setup(0, "table_with_floor-1", false);
-        setup(1, "table_with_floor-2", false);
-//        setup(0, "Grass1", false);
-//        setup(1, "table_with_floor-1", true);
-//        setup(2, "table_with_floor-2", true);
+        setup(0, "UGA_floor_tile_for_use", false);
+        setup(1, "table_with_floor-1", true);
+        setup(2, "table_with_floor-2", true);
+        setup(3, "uga_chair_1", true);
+        setup(4, "uga_chair_2", true);
+        setup(5, "walls", true);
+        setup(6, "mlh_table_for_use", true);
+        setup(7, "powerup_for_use", false);
+
 //        setup(3, "Grass4", false);
 //        setup(4, "Grass5", false);
 //        setup(5, "Grass6", false);

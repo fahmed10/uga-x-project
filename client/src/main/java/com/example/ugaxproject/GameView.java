@@ -40,8 +40,8 @@ public class GameView {
     public static float worldY = 256.0f;    // y-coords the player has moved this session
 
     // Tile Variables
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
+    public final int maxWorldCol = 70;
+    public final int maxWorldRow = 35;
     public float screenX;
     public float screenY;
     TileManager tileManager = new TileManager(this);
