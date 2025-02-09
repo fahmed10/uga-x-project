@@ -49,12 +49,8 @@ public class Player {
     public Vector2 getPosition() {
         return position;
     }
-
-    @Override
+    
     public void draw(GraphicsContext gc) {
-        //gc.setFill(Color.BLUE);
-        //gc.fillOval(position.x, position.y, SIZE, SIZE);
-
         if(state == State.NOT_ATTACKING) {
             if (direction == Direction.LEFT) {
                 gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
@@ -106,53 +102,10 @@ public class Player {
         return isRolling;
     }
 
-    public void attack() {
-        // Handle other cases if needed
-        attacking = true;
-        System.out.println("attacking is true");
-    }
-
     public void moveTo(float x, float y) {
         lastPositionTime = System.currentTimeMillis();
         this.lastPosition.set(position.x, position.y);
         this.position.set(x, y);
-    }
-
-    public void draw(GraphicsContext gc) {
-        Vector2 position = this.position;
-
-    public void drawCentered(GraphicsContext gc) {
-        if(state == State.NOT_ATTACKING) {
-            if (direction == Direction.LEFT) {
-                gc.drawImage(guitar, position.x + 30, position.y, SIZE, SIZE);
-                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-            } else if (direction == Direction.RIGHT) {
-                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-                gc.drawImage(guitar, position.x - 5, position.y, SIZE, SIZE);
-            }
-        }
-        else if(state == State.IS_ATTACKING || state == State.IS_ATTACKING_LEFT || state == State.IS_ATTACKING_RIGHT) {
-            if (direction == Direction.LEFT) {
-                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-                gc.drawImage(guitar, position.x , position.y-25, SIZE, SIZE);
-            } else {
-                gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-                gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-                gc.drawImage(guitar, position.x , position.y-25, SIZE, SIZE);
-            }
-        }
-        else if(state == State.AFTER_ATTACKING_LEFT) {
-            gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-            gc.drawImage(guitar, position.x - 30, position.y+25, SIZE, SIZE);
-        } else if(state == State.AFTER_ATTACKING_RIGHT) {
-            gc.drawImage(legs, position.x + 1, position.y + 36, SIZE, SIZE);
-            gc.drawImage(avatar, position.x, position.y, SIZE, SIZE);
-            gc.drawImage(guitar, position.x + 30, position.y+25, SIZE, SIZE);
-        }
     }
 
     public void walkAnimation(Direction direction, Set<Input> inputs, double deltaTime) {
