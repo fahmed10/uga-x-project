@@ -116,8 +116,14 @@ public class GameView {
                     other.setDirection(directions[playerMovePacket.direction]);
                 }
             }
-            default -> {
+            case PlayerJoinPacket playerJoinPacket -> {
+                if (others.containsKey(playerJoinPacket.userId)) {
+                    return;
+                }
+
+                others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y));
             }
+            default -> {}
         }
     }
 
@@ -173,10 +179,6 @@ public class GameView {
         gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
     }
 
-        for (Player p : others.values()) {
-            p.draw(gc);
-        }
-
     private void drawGame(double delta) {
         drawBackground();
 
@@ -184,6 +186,10 @@ public class GameView {
         double translateY = (gameCanvas.getHeight() / 2) - startY - worldY - 64;
 
         gc.translate(translateX, translateY);
+
+        for (Player p : others.values()) {
+            p.draw(gc);
+        }
 
         player.walkAnimation(direction, inputs, delta);
 //        player.draw(gc);
