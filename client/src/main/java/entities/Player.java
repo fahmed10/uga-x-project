@@ -121,10 +121,6 @@ public class Player {
     public void draw(GraphicsContext gc) {
         Vector2 position = this.position;
 
-        if (remote) {
-            position = Vector2.lerp(lastPosition, position, new Random().nextFloat());
-        }
-
         if (direction == Direction.LEFT) {
             gc.drawImage(guitar, position.x, position.y, SIZE, SIZE);
             gc.drawImage(legs, position.x+1, position.y+36, SIZE, SIZE);

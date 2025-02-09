@@ -127,10 +127,8 @@ public class Server extends Thread {
                 packetQueue.clear();
 
                 if (packets.length == 1) {
-                    System.out.println(">>>> Sent " + packets[0].getClass().getSimpleName());
                     yield packets[0];
                 } else {
-                    if(packets.length > 1) System.out.println(">>>> Sent Composite (" + packets.length + ")");
                     yield new CompositePacket(packets);
                 }
             }
