@@ -5,10 +5,12 @@ import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.*;
 import java.util.*;
 
 
@@ -52,9 +55,27 @@ public class GameView {
     @FXML
     private AnchorPane rootPane;
 
+    private MediaPlayer mediaPlayer;
+    private MediaPlayer guitarHitPlayer;
+
+    private Media loadMedia(String path) throws URISyntaxException {
+        return new Media(GameApplication.class.getResource("music.mp3").toURI().toString());
+    }
+
     public void init(GameClient client) {
         this.client = client;
         setupGame();
+
+        try {
+            mediaPlayer = new MediaPlayer(loadMedia("music.mp3"));
+            mediaPlayer.setVolume(0.15);
+            mediaPlayer.play();
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            guitarHitPlayer = new MediaPlayer(loadMedia("guitar.mp3"));
+            guitarHitPlayer.setVolume(0.15);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
 
         if (gameCanvas == null) {
             System.out.println("Error: gameCanvas is null! Check your FXML.");
@@ -139,7 +160,9 @@ public class GameView {
                 }
             }
             case PlayerJoinPacket playerJoinPacket -> {
-                others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true));
+                if (!others.containsKey(playerJoinPacket.userId)) {
+                    others.put(playerJoinPacket.userId, new Player(playerJoinPacket.position.x, playerJoinPacket.position.y, true));
+                }
             }
             case PlayerLeavePacket playerLeavePacket -> {
                 others.remove(playerLeavePacket.userId);
@@ -147,13 +170,13 @@ public class GameView {
             case DamagePacket damagePacket -> {
                 if (others.containsKey(damagePacket.targetUserId)) {
                     Player other = others.get(damagePacket.targetUserId);
-                    other.damage(damagePacket.damage);
+                    other.setHealth(damagePacket.newHealth);
                 } else if (client.userId == damagePacket.targetUserId) {
-                    player.damage(damagePacket.damage);
+                    player.setHealth(damagePacket.newHealth);
 
                     if (player.getHealth() <= 0) {
                         // TODO: Game over logic
-                        GameApplication.showAlert("Game Over!", "!", Alert.AlertType.ERROR);
+                        System.out.println("Game over!");
                     }
                 }
             }
@@ -245,6 +268,10 @@ public class GameView {
 
     @FXML
     void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.M) {
+            mediaPlayer.setMute(!mediaPlayer.isMute());
+        }
+
         inputs.add(
         switch (event.getCode()) {
             case W, UP -> Input.MOVE_UP;
@@ -272,12 +299,14 @@ public class GameView {
     void handleMousePress(MouseEvent event) {
         if (event.getEventType().equals(MOUSE_PRESSED)) {
             player.attack();
+            // guitarHitPlayer.play();
 
             for (Map.Entry<Byte, Player> pair : others.entrySet()) {
                 if (pair.getValue() != player && Vector2.distance(player.getPosition(), pair.getValue().getPosition()) < 100) {
                     try {
-                        client.damage(pair.getKey(), (byte) 21);
-                        pair.getValue().damage(21);
+                        int newHealth = pair.getValue().getHealth() - 21;
+                        client.damage(pair.getKey(), (byte) newHealth);
+                        pair.getValue().setHealth(newHealth);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

@@ -37,6 +37,7 @@ public class CompositePacket extends Packet {
                 case PacketType.PLAYER_JOIN -> new PlayerJoinPacket(packetData);
                 case PacketType.PLAYER_LEAVE -> new PlayerLeavePacket(packetData);
                 case PacketType.PLAYER_MOVE -> new PlayerMovePacket(packetData);
+                case PacketType.DAMAGE -> new DamagePacket(packetData);
                 case PacketType.STRING -> new StringPacket(packetData);
                 default -> throw new IllegalStateException("Unexpected value: " + packetData[0]);
             };
