@@ -17,17 +17,19 @@ public class Server extends Thread {
         packetQueue.computeIfAbsent(userId, k -> new LinkedList<>()).add(packet);
     }
 
-    void broadcast(Packet packet) {
+    void broadcast(Packet packet, int count) {
         broadcast(packet, (byte) -1);
     }
 
-    void broadcast(Packet packet, byte excludeId) {
-        for (Player player : gameWorld.getPlayers()) {
-            if (player.userId == excludeId) {
-                continue;
-            }
+    void broadcast(Packet packet, byte excludeId, int count) {
+        for (int i = 0; i < count; i++) {
+            for (Player player : gameWorld.getPlayers()) {
+                if (player.userId == excludeId) {
+                    continue;
+                }
 
-            direct(packet, player.userId);
+                direct(packet, player.userId);
+            }
         }
     }
 
@@ -68,7 +70,7 @@ public class Server extends Thread {
 
             for (Player lostPlayer : lostPlayers) {
                 clearBroadcast(lostPlayer.userId);
-                broadcast(new PlayerLeavePacket(lostPlayer.userId));
+                broadcast(new PlayerLeavePacket(lostPlayer.userId), 3);
             }
 
             try {
@@ -95,7 +97,7 @@ public class Server extends Thread {
                     yield null;
                 }
 
-                broadcast(new PlayerJoinPacket(userId, new Vector2()), userId);
+                broadcast(new PlayerJoinPacket(userId, new Vector2()), userId, 2);
                 for (Player player : gameWorld.getPlayers()) {
                     if (player.userId != userId) {
                         direct(new PlayerJoinPacket(player.userId, player.position), userId);
@@ -107,7 +109,7 @@ public class Server extends Thread {
             case PlayerMovePacket playerMovePacket -> {
                 // System.out.println("[" + playerMovePacket.userId + "] Move to: " + playerMovePacket.position);
                 gameWorld.movePlayerTo(playerMovePacket.userId, playerMovePacket.position, playerMovePacket.direction);
-                broadcast(playerMovePacket, playerMovePacket.userId);
+                broadcast(playerMovePacket, playerMovePacket.userId, 2);
                 yield null;
             }
             case KeepAlivePacket keepAlivePacket -> {
@@ -119,14 +121,12 @@ public class Server extends Thread {
 
                 gameWorld.getPlayer(keepAlivePacket.userId).keepAlive();
                 Player player = gameWorld.getPlayer(keepAlivePacket.userId);
-                broadcast(new PlayerMovePacket(keepAlivePacket.userId, player.direction, player.position), keepAlivePacket.userId);
+                broadcast(new PlayerMovePacket(keepAlivePacket.userId, player.direction, player.position), keepAlivePacket.userId, 2);
                 yield null;
             }
             case DamagePacket damagePacket -> {
                 System.out.println("[" + damagePacket.userId + "] Damaged " + damagePacket.targetUserId + " to " + damagePacket.newHealth);
-                broadcast(damagePacket, damagePacket.userId);
-                broadcast(damagePacket, damagePacket.userId);
-                broadcast(damagePacket, damagePacket.userId);
+                broadcast(damagePacket, damagePacket.userId, 3);
                 yield null;
             }
             case PacketRequestPacket packetRequestPacket -> {
