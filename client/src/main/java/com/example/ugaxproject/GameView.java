@@ -282,7 +282,7 @@ public class GameView {
     void handleMousePress(MouseEvent event) {
         if (event.getEventType().equals(MOUSE_PRESSED)) {
             player.attack();
-            guitarHitPlayer.play();
+            // guitarHitPlayer.play();
 
             for (Map.Entry<Byte, Player> pair : others.entrySet()) {
                 if (pair.getValue() != player && Vector2.distance(player.getPosition(), pair.getValue().getPosition()) < 100) {
